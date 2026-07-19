@@ -3,7 +3,7 @@
 This section outlines why the Weak Signal Propagation Reporter (WSPR) protocol is uniquely suited for advanced propagation channel estimation, alongside the mathematical framework governing the proposed signal model.
 
 ## Why WSPR?
-WSPR is uniquely optimized for this research due to its highly constrained and deterministic waveform transmission properties [cite: 24]:
+WSPR is uniquely optimized for this research due to its highly constrained and deterministic waveform transmission properties:
 * **Public and Deterministic Protocol:** The underlying specification is fully open and predictable.
 * **Post-Decode Determinism:** Once a WSPR transmission is successfully decoded by a receiver, the core operational parameters become known:
   * Transmitter Callsign
