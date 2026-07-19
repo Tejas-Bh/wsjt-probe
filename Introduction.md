@@ -1,8 +1,4 @@
-# wspr-probe
-
-This is a log for a project I'm working on.
-
----
+# wspr-probe: introduction
 
 Opportunistic remote sensing is the process of collecting data without contact using __existing infrastructure__.
 
