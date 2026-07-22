@@ -1,4 +1,4 @@
-# wspr-probe: introduction
+# wsjt-probe: introduction
 *Note: the other markdown files in this repository (located in notes/) contain more detailed descriptions of how I plan to go about this.*
 
 Opportunistic remote sensing is the process of collecting data without contact using __existing infrastructure__.
