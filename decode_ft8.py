@@ -1,5 +1,3 @@
-from read_signal import waveform
-
 # TODO: after read_signal is implemented, decode ft8 and 
 # store the message characteristics in `message`
 
