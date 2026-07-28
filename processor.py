@@ -48,5 +48,7 @@ def extract_radar_peaks(caf_magnitude, doppler_axis, max_delay_samples=500):
     doppler_idx, delay_samples = np.unravel_index(np.argmax(search_grid), search_grid.shape)
     
     detected_doppler = doppler_axis[doppler_idx]
+
+    peak_row = search_grid[:, delay_samples]
     
-    return delay_samples, detected_doppler
+    return delay_samples, detected_doppler, peak_row

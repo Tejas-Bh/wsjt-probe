@@ -11,10 +11,11 @@ import numpy as np
 # true_doppler = 2.4
 
 paths = [
-    WattersonPath(delay_s=1e-3, doppler_spread_hz=0.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
-    WattersonPath(delay_s=0.015, doppler_spread_hz=0.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
-    # WattersonPath(delay_s=0.0, doppler_spread_hz=1.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
-    # WattersonPath(delay_s=1e-3, doppler_spread_hz=1.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
+    # WattersonPath(delay_s=1e-3, doppler_spread_hz=0.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
+    # WattersonPath(delay_s=0.015, doppler_spread_hz=0.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
+    WattersonPath(delay_s=0.0, doppler_spread_hz=1.0, doppler_shift_hz=0.0, gain=1 / np.sqrt(2)),
+    WattersonPath(delay_s=1e-3, doppler_spread_hz=1.0, doppler_shift_hz=2.4, gain=1 / np.sqrt(2)),
+    WattersonPath(delay_s=2e-3, doppler_spread_hz=1.0, doppler_shift_hz=4.4, gain=1 / np.sqrt(2)),
 ]
 channel = WattersonChannel(paths, fs=fs, seed=1234)
 waveform = channel.apply(synthetic_ft8)

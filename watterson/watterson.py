@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Note: this file was AI-generated.
 """
@@ -41,8 +42,6 @@ machinery is unnecessary: the Gaussian shaping filter is designed and
 applied directly at the signal's sample rate, which is mathematically
 equivalent.
 """
-
-from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Optional

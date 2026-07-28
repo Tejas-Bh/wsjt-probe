@@ -12,7 +12,7 @@ from gen_ft8 import synthetic_ft8, sample_rate
 from processor import calculate_caf, extract_radar_peaks
 
 # Run the CAF on the same waves to find points of ambiguity (pain points), as suggested by K8GU
-caf_result, doppler_result = calculate_caf(synthetic_ft8, synthetic_ft8)
+caf_result, doppler_result, peak_row = calculate_caf(synthetic_ft8, synthetic_ft8)
 
 # Finds the peaks (samples with highest amplitude) for the CAF result for doppler shift and time delay
 detected_delay, detected_doppler = extract_radar_peaks(caf_result, doppler_result, max_delay_samples=700)
