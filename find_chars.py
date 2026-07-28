@@ -30,8 +30,8 @@ peaks_found, properties = find_peaks(
 print("\n================ TEST RESULTS ================")
 print(f"Calculated Path Delay: {detected_delay} samples")
 print(f"Calculated Doppler Shift: {detected_doppler:.2f} Hz")
-print(threshold)
-print(peaks_found)
+print(f"Doppler shifts found: {len(peaks_found)}")
+print(f"Doppler shifts frequencies: {[doppler_result[i] for i in peaks_found]}")
 print("==============================================")
 
 input("Press enter to continue...")
