@@ -24,3 +24,6 @@ The closest thing I've found from my research is __commercial microwave links__,
 However, since these modes are proprietary, they don't allow for detailed waveform-level analysis.
 
 __This is where I believe amateur radio modes could be used__.
+
+## Acknowledgements
+__weakmon__ is used for encoding and decoding FT8 signals.
