@@ -2,6 +2,7 @@
 import time
 import os
 from ft8_receiver import FT8BlockReceiver
+from analyze import analyze
 
 def main():
     card_desc = ["4", "0"]
@@ -9,17 +10,17 @@ def main():
 
     print("Waiting for next UTC slot boundary (:00, :15, :30, :45)...")
 
-    while True:
+    if True:
         try:
             waveform, future, slot_utc = receiver.capture_utc_slot_async()
 
-            # Wait for background decode process to finish
+            # Retrieve decoded messages from background process
             messages = future.result()
 
             utc_str = time.strftime("%H:%M:%S UTC", time.gmtime(slot_utc))
 
             print(f"\n--- Slot {utc_str} ---")
-            print(f"Waveform array size in memory: {len(waveform)} samples")
+            print(f"Waveform size: {len(waveform)} samples | Type: {waveform.dtype}")
             print(f"Messages decoded: {len(messages)}")
 
             for msg in messages:
@@ -28,6 +29,12 @@ def main():
                 hz_val = msg["hz"]() if callable(msg["hz"]) else msg["hz"]
                 dt = msg["dt"]
                 print(f"[{utc_str}] SNR: {snr} dB | DT: {dt}s | Freq: {hz_val} Hz | Message: {text}")
+
+                try:
+                    radar_data = analyze(waveform, msg)
+                    print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['doppler_shift_hz']} Hz | Multipaths: {radar_data['path_shifts']}")
+                except Exception as eval_err:
+                    print(f"  └─ Analysis error: {eval_err}")
 
         except KeyboardInterrupt:
             raise

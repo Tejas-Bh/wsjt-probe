@@ -760,3 +760,1355 @@
 02/08/26 04:59:03 04:59:00 None sub-process did not quit 2.9 got 0
 02/08/26 04:59:03 04:59:00 None sub-process did not quit 2.9 got 0
 02/08/26 04:59:03 04:59:00 None sub-process did not quit 3.0 got 0
+[4, 0] pya expected 5086 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 3806 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2777 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5084 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 3805 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 3032 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7134 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4572 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 5081 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4319 got 1500
+[4, 0] pya expected 4825 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6110 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 5597 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6877 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 6106 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4318 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya expected 4059 got 1500
+[4, 0] pya expected 5341 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 6107 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 7901 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4829 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 5600 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 3545 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 3806 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4827 got 1500
+[4, 0] pya expected 3290 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 7391 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3290 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 5085 got 1500
+[4, 0] pya expected 2793 got 1500
+[4, 0] pya expected 8399 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4829 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 4319 got 1500
+[4, 0] pya expected 3291 got 1500
+[4, 0] pya expected 6877 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7131 got 1500
+[4, 0] pya expected 4059 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 6618 got 1500
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya expected 3544 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4062 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6110 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 5083 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4831 got 1500
+[4, 0] pya expected 4314 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6107 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya expected 4828 got 1500
+[4, 0] pya expected 6365 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7131 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3032 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 5600 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 5597 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6107 got 1500
+[4, 0] pya expected 3290 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 4062 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5085 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 5853 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 3806 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 9181 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3807 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5596 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3039 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4570 got 1500
+[4, 0] pya expected 6876 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4826 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6878 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 4062 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4573 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 6109 got 1500
+[4, 0] pya expected 5339 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5595 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3803 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3039 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6621 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5341 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 8667 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3039 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4832 got 1500
+[4, 0] pya expected 3031 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4829 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5088 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 5851 got 1500
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6108 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4831 got 1500
+[4, 0] pya expected 6107 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 4573 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4059 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6107 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4571 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 3805 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 5339 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3802 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6110 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3808 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3039 got 1500
+[4, 0] pya expected 7387 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6621 got 1500
+[4, 0] pya expected 4314 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 5341 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya expected 6108 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4569 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4063 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6110 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3295 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4319 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 4829 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2783 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6619 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 4827 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 5595 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 4828 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4319 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 4831 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7131 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4575 got 1500
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya expected 3290 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4574 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya expected 5085 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5853 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya expected 2012 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 2030 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3020 got 1500
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 5339 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 3809 got 1500
+[4, 0] pya expected 2774 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya expected 3293 got 1500
+[4, 0] pya expected 3546 got 1500
+[4, 0] pya expected 2018 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 4837 got 1500
+[4, 0] pya expected 2259 got 1500
+[4, 0] pya expected 3303 got 1500
+[4, 0] pya expected 2771 got 1500
+[4, 0] pya expected 4321 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2777 got 1500
+[4, 0] pya expected 2777 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4062 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6367 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3807 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya expected 6111 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5595 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 5345 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 3805 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 4567 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 5345 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4823 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4831 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7645 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 3033 got 1500
+[4, 0] pya expected 3039 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2782 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4829 got 1500
+[4, 0] pya expected 5341 got 1500
+[4, 0] pya expected 4059 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6110 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7386 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 7901 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 4827 got 1500
+[4, 0] pya expected 5596 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3040 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4830 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4314 got 1500
+[4, 0] pya expected 3551 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 8672 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 4314 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5594 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2015 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 3293 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 5596 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2781 got 1500
+[4, 0] pya expected 3294 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya expected 4060 got 1500
+[4, 0] pya expected 4828 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4062 got 1500
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2779 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4828 got 1500
+[4, 0] pya expected 3549 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3805 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 6620 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 3034 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 4316 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 8156 got 1500
+[4, 0] pya expected 4828 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 3547 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4831 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4315 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 5596 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 3035 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3548 got 1500
+[4, 0] pya expected 3038 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 4570 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3806 got 1500
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya expected 3550 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3037 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 3806 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5849 got 1500
+[4, 0] pya expected 3292 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5853 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 4059 got 1500
+[4, 0] pya expected 4061 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 4826 got 1500
+[4, 0] pya expected 4317 got 1500
+[4, 0] pya expected 3036 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 5340 got 1500
+[4, 0] pya expected 2257 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2268 got 1500
+02/08/26 17:17:33 17:17:15 None sub-process did not quit 3.1 got 2
+02/08/26 17:17:36 17:17:15 None sub-process did not quit 2.8 got 3
+02/08/26 17:17:38 17:17:15 None sub-process did not quit 2.8 got 4
+[4, 0] pya expected 2273 got 1500
+[4, 0] pya expected 2267 got 1500
+02/08/26 17:17:41 17:17:15 None sub-process did not quit 2.8 got 2
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2784 got 1500
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2012 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2525 got 1500
+[4, 0] pya expected 2015 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2013 got 1500
+[4, 0] pya expected 2021 got 1500
+02/08/26 17:19:20 17:19:00 None sub-process did not quit 2.8 got 3
+02/08/26 17:19:23 17:19:00 None sub-process did not quit 2.7 got 4
+[4, 0] pya expected 2260 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2021 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2275 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2275 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2778 got 1500
+[4, 0] pya expected 2016 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 2284 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2252 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2019 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2021 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2281 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2258 got 1500
+[4, 0] pya expected 2274 got 1500
+[4, 0] pya expected 2257 got 1500
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2258 got 1500
+[4, 0] pya expected 2024 got 1500
+[4, 0] pya expected 2261 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2016 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2273 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2012 got 1500
+[4, 0] pya expected 2018 got 1500
+[4, 0] pya expected 2281 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 2260 got 1500
+[4, 0] pya expected 2271 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2275 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2272 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2289 got 1500
+[4, 0] pya expected 2259 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2281 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2276 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2015 got 1500
+[4, 0] pya expected 2019 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2274 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2262 got 1500
+[4, 0] pya expected 2286 got 1500
+[4, 0] pya expected 2242 got 1500
+[4, 0] pya expected 2016 got 1500
+[4, 0] pya expected 2776 got 1500
+[4, 0] pya expected 2275 got 1500
+[4, 0] pya expected 2295 got 1500
+[4, 0] pya expected 2243 got 1500
+[4, 0] pya expected 2258 got 1500
+[4, 0] pya expected 2299 got 1500
+[4, 0] pya expected 2238 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2283 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2264 got 1500
+[4, 0] pya expected 3537 got 1500
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2286 got 1500
+[4, 0] pya expected 2254 got 1500
+[4, 0] pya expected 2019 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2013 got 1500
+[4, 0] pya expected 2266 got 1500

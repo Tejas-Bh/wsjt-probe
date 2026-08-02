@@ -23,6 +23,8 @@ bits77 = sender.pack(message, 1)
 sample_rate = 12000
 audio = sender.tones(bits77, 1000, sample_rate)
 
+print(audio.dtype)
+
 synthetic_ft8 = signal.hilbert(audio)
 
 if __name__ == "__main__":
