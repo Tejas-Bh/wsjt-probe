@@ -2,7 +2,7 @@
 """
 UTC-Synchronized FT8 Receive-only Module for weakmon.
 Captures audio/IQ waveforms synchronized to UTC 15-second boundaries
-and decodes FT8 messages into memory.
+and decodes FT8 messages in separate processes to prevent audio buffer overflows.
 """
 
 from pathlib import Path
@@ -10,129 +10,94 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).parent / "weakmon"))
 
-
 import time
 import math
+import concurrent.futures
 import numpy as np
 import ft8
 import weakaudio
 
 
-def wait_for_next_utc_slot(slot_seconds=15.0):
+# Standalone worker function for ProcessPoolExecutor
+def decode_waveform_worker(waveform, sample_rate, sample_time, verbose=False):
     """
-    Blocks until the start of the next UTC time slot (00, 15, 30, 45 seconds past minute).
-    Returns the UTC timestamp of the start of the slot.
+    Top-level function that runs in a separate OS process to prevent
+    GIL / CPU contention with the audio capture stream.
     """
-    now = time.time()
-    # Calculate seconds remaining until the next 15-second boundary
-    rem = now % slot_seconds
-    wait_time = slot_seconds - rem
-    
-    # Avoid zero sleep if called right on the boundary
-    if wait_time < 0.05:
-        wait_time += slot_seconds
+    decoder = ft8.FT8()
+    decoder.verbose = verbose
+    decoder.cardrate = sample_rate
+    decoder.rcardrate = sample_rate
 
-    time.sleep(wait_time)
-    
-    # Target starting timestamp aligned to the slot
-    slot_start_time = math.floor(time.time() / slot_seconds) * slot_seconds
-    return slot_start_time
+    decoder.process(waveform, sample_time)
 
+    raw_decodes = decoder.get_msgs()
+    messages = []
 
-class FT8Decoder:
-    """
-    Decodes FT8 messages directly from an in-memory PCM or I/Q audio waveform array.
-    """
-    def __init__(self, sample_rate=12000, verbose=False):
-        self.sample_rate = sample_rate
-        self.verbose = verbose
+    for dec in raw_decodes:
+        msg_info = {
+            "message": getattr(dec, "msg", str(dec)),
+            "snr": getattr(dec, "snr", None),
+            "hz": getattr(dec, "hz", None),
+            "dt": getattr(dec, "dt", None),
+            "timestamp_utc": sample_time
+        }
+        messages.append(msg_info)
 
-    def decode_waveform(self, waveform, sample_time=None):
-        """
-        Decodes a numpy array representing the audio/IQ waveform for a 15-second FT8 slot.
-        """
-        if sample_time is None:
-            sample_time = time.time()
+    return messages
 
-        # Instantiate FT8 decoder instance from ft8.py
-        decoder = ft8.FT8()
-        decoder.verbose = self.verbose
-
-        # Set expected sample rate attributes for direct array processing
-        decoder.cardrate = self.sample_rate
-        decoder.rcardrate = self.sample_rate
-
-        # Process waveform using ft8 engine
-        decoder.process(waveform, sample_time)
-
-        # Retrieve decoded messages
-        raw_decodes = decoder.get_msgs()
-        messages = []
-
-        for dec in raw_decodes:
-            msg_info = {
-                "message": getattr(dec, "msg", str(dec)),
-                "snr": getattr(dec, "snr", None),
-                "hz": getattr(dec, "hz", None),
-                "dt": getattr(dec, "dt", None),
-                "timestamp_utc": sample_time
-            }
-            messages.append(msg_info)
-
-        return messages
 
 class FT8BlockReceiver:
     """
-    Interfaces with weakmon's weakaudio to record a UTC-aligned 15-second FT8 window.
+    Interfaces with weakmon's weakaudio to record UTC-aligned 15-second FT8 windows.
     """
-    def __init__(self, card_desc, sample_rate=12000):
-        """
-        :param card_desc: Card identifier list for weakaudio.new(), 
-                          e.g., ["0", "0"] for audio card 0 ch 0, or ["sdrip", "192.168.1.100"]
-        :param sample_rate: Audio sampling rate (12000 Hz for FT8)
-        """
+    def __init__(self, card_desc, sample_rate=12000, max_workers=2):
         self.card_desc = card_desc
         self.sample_rate = sample_rate
-        self.decoder = FT8Decoder(sample_rate=sample_rate)
+        self.audio_stream = weakaudio.new(self.card_desc, self.sample_rate)
+        # ProcessPoolExecutor isolates decoder CPU execution from audio streaming
+        self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=max_workers)
 
-    def capture_utc_slot(self, slot_seconds=15.0):
-        """
-        Waits for the next UTC boundary (:00, :15, :30, :45), records for 15 seconds,
-        and decodes the waveform.
+    def wait_until_next_slot(self, slot_seconds=15.0):
+        now = time.time()
+        rem = now % slot_seconds
+        wait_time = slot_seconds - rem
 
-        :return: Tuple (waveform, messages, slot_start_utc)
-                 - waveform: numpy ndarray of recorded raw samples
-                 - messages: list of decoded message dicts
-                 - slot_start_utc: UTC UNIX epoch timestamp of slot start
-        """
-        # 1. Wait until top of next UTC slot
-        slot_start_utc = wait_for_next_utc_slot(slot_seconds)
+        if wait_time < 0.05:
+            wait_time += slot_seconds
 
-        # 2. Open weakmon audio stream
-        audio_stream = weakaudio.new(self.card_desc, self.sample_rate)
-        
+        target_utc_start = now + wait_time
+
+        # Drain audio continuously while waiting for boundary
+        while time.time() < target_utc_start:
+            self.audio_stream.read()
+            time.sleep(0.001)
+
+        slot_start_time = math.floor(target_utc_start / slot_seconds) * slot_seconds
+        return slot_start_time
+
+    def capture_utc_slot_async(self, slot_seconds=15.0):
+        slot_start_utc = self.wait_until_next_slot(slot_seconds)
+
+        target_samples = int(self.sample_rate * slot_seconds)
         samples_list = []
-        end_time = slot_start_utc + slot_seconds
+        collected_samples = 0
 
-        # 3. Read stream until end of 15-second window
-        while time.time() < end_time:
-            buf, tm = audio_stream.read()
+        # Read audio stream as fast as possible without sleep inside loop
+        while collected_samples < target_samples:
+            buf, tm = self.audio_stream.read()
             if len(buf) > 0:
                 samples_list.append(buf)
-            else:
-                time.sleep(0.02)
+                collected_samples += len(buf)
 
-        # Close stream resources if applicable
-        if hasattr(audio_stream, "close"):
-            audio_stream.close()
-
-        # Concatenate waveform buffers
         if len(samples_list) > 0:
-            waveform = np.concatenate(samples_list)
+            waveform = np.concatenate(samples_list)[:target_samples]
         else:
             waveform = np.array([], dtype=np.float32)
 
-        # 4. Decode in-memory waveform
-        messages = self.decoder.decode_waveform(waveform, sample_time=slot_start_utc)
+        # Submit decode task to isolated worker process
+        future = self.executor.submit(
+            decode_waveform_worker, waveform, self.sample_rate, slot_start_utc
+        )
 
-        return waveform, messages, slot_start_utc
+        return waveform, future, slot_start_utc
