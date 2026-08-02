@@ -21,6 +21,8 @@ def analyze(waveform, msg):
     Part one: reconstructing the I/Q signal
     TODO: Implement delta t!!!!!!
     """
+    waveform = signal.hilbert(waveform)
+
     bits77 = sender.pack(msg["message"])
 
     sample_rate = 12000
@@ -50,9 +52,9 @@ def analyze(waveform, msg):
     
     print(f"Finished analyzing signal @ {msg['hz']()}")
     return {
-            "message": "msg",
+            "message": msg,
             "path_delay_samples": detected_delay,
             "doppler_shift_hz": detected_doppler,
             "path_shifts": len(peaks_found),
             "path_shifts_freqs": [doppler_result[i] for i in peaks_found]
-    }
+            }
