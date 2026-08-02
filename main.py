@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import time
 import os
+import json
 from ft8_receiver import FT8BlockReceiver
 from analyze import analyze
 
@@ -18,10 +19,14 @@ def main():
             messages = future.result()
 
             utc_str = time.strftime("%H:%M:%S UTC", time.gmtime(slot_utc))
+            file_timestamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime(slot_utc))
 
             print(f"\n--- Slot {utc_str} ---")
             print(f"Waveform size: {len(waveform)} samples | Type: {waveform.dtype}")
             print(f"Messages decoded: {len(messages)}")
+
+            # List to aggregate all decoded message objects for this slot
+            slot_data_log = []
 
             for msg in messages:
                 text = msg["message"]
@@ -30,11 +35,27 @@ def main():
                 dt = msg["dt"]
                 print(f"[{utc_str}] SNR: {snr} dB | DT: {dt}s | Freq: {hz_val} Hz | Message: {text}")
 
+                # Build dictionary for the individual message data
+                msg_entry = {}
+
                 try:
                     radar_data = analyze(waveform, msg)
                     print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['doppler_shift_hz']} Hz | Multipaths: {radar_data['path_shifts']}")
+                    
+                    # Store radar results directly into the message dictionary
+                    msg_entry["radar_analysis"] = radar_data
                 except Exception as eval_err:
                     print(f"  └─ Analysis error: {eval_err}")
+                    msg_entry["radar_analysis"] = {"error": str(eval_err)}
+
+                slot_data_log.append(msg_entry)
+
+            # Save the gathered data to a timestamped JSON file if messages exist
+            if slot_data_log:
+                json_filename = f"ft8_radar_{file_timestamp}.json"
+                with open(json_filename, "w", encoding="utf-8") as f:
+                    json.dump(slot_data_log, f, indent=4)
+                print(f"\n[Saved] Slot data successfully written to {json_filename}")
 
         except KeyboardInterrupt:
             raise
@@ -50,3 +71,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"There was an error: {e}")
         os._exit(1)
+

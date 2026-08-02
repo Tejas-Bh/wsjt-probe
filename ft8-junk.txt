@@ -2112,3 +2112,81 @@
 [4, 0] pya expected 2267 got 1500
 [4, 0] pya expected 2013 got 1500
 [4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2018 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2780 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 3804 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2270 got 1500
+02/08/26 18:18:50 18:18:30 None sub-process did not quit 2.9 got 4
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2016 got 1500
+[4, 0] pya expected 2274 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2257 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2270 got 1500
+[4, 0] pya expected 2277 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2282 got 1500
+[4, 0] pya expected 2255 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2278 got 1500
+[4, 0] pya expected 2258 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya expected 2017 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2263 got 1500
+[4, 0] pya expected 2017 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2014 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2277 got 1500
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2275 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2267 got 1500
+[4, 0] pya expected 2261 got 1500
+[4, 0] pya expected 2284 got 1500
+[4, 0] pya expected 2254 got 1500
+[4, 0] pya expected 2266 got 1500
+[4, 0] pya_callback status 2
+
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2268 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2269 got 1500
+[4, 0] pya expected 2278 got 1500
+[4, 0] pya expected 3030 got 1500
+[4, 0] pya expected 2265 got 1500
+[4, 0] pya expected 2016 got 1500

@@ -65,6 +65,7 @@ def analyze(waveform, msg, sample_rate=12000):
     """
 
     hz_val = msg["hz"]() if callable(msg["hz"]) else msg["hz"]
+    msg["hz"] = hz_val
 
     clean_waveform = isolate_signal_time_domain(waveform, center_hz=hz_val, sample_rate=sample_rate)
 
