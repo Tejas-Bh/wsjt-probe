@@ -36,7 +36,7 @@ def analyze(waveform, msg):
     - Path delay (????)
     - Path shifts (!)
     """
-    caf_result, doppler_result = calculate_caf(waveform, sythetic_ft8)
+    caf_result, doppler_result = calculate_caf(waveform, synthetic_ft8)
 
     detected_delay, detected_doppler, peak_row = extract_radar_peaks(caf_result, doppler_result, max_delay_samples=700)
 
