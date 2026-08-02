@@ -5,8 +5,10 @@ sys.path.insert(0, str(Path(__file__).parent / "weakmon"))
 sys.path.insert(0, str(Path(__file__).parent / "tools"))
 
 import ft8
+import re
 import weakutil
 import scipy.signal as signal
+
 from processor import calculate_caf, extract_radar_peaks
 import numpy as np
 
@@ -72,7 +74,12 @@ def analyze(waveform, msg, sample_rate=12000):
     waveform_iq = signal.hilbert(clean_waveform)
 
     # Pack message into 77-bit FT8 payload
-    bits77 = sender.pack(msg["message"], 1)
+    if not re.match(r'^([A-Z0-9]+) ([A-Z0-9]+) (5[2-9]9) ([A-Z]+)$', msg["message"]):
+        i3 = 1
+    else:
+        i3 = 3
+
+    bits77 = sender.pack(msg["message"], i3)
 
     audio = sender.tones(bits77, hz_val, sample_rate)
     synthetic_iq = signal.hilbert(audio)

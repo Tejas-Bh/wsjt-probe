@@ -2,8 +2,20 @@
 import time
 import os
 import json
+import numpy as np  # Imported to handle NumPy type conversions
 from ft8_receiver import FT8BlockReceiver
 from analyze import analyze
+
+class NumpyEncoder(json.JSONEncoder):
+    """Custom encoder to automatically convert NumPy types to native Python types."""
+    def default(self, obj):
+        if isinstance(obj, (np.integer, np.int64, np.int32, np.int16, np.int8)):
+            return int(obj)
+        if isinstance(obj, (np.floating, np.float64, np.float32, np.float16)):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NumpyEncoder, self).default(obj)
 
 def main():
     card_desc = ["4", "0"]
@@ -25,7 +37,6 @@ def main():
             print(f"Waveform size: {len(waveform)} samples | Type: {waveform.dtype}")
             print(f"Messages decoded: {len(messages)}")
 
-            # List to aggregate all decoded message objects for this slot
             slot_data_log = []
 
             for msg in messages:
@@ -33,28 +44,27 @@ def main():
                 snr = msg["snr"]
                 hz_val = msg["hz"]() if callable(msg["hz"]) else msg["hz"]
                 dt = msg["dt"]
-                print(f"[{utc_str}] SNR: {snr} dB | DT: {dt}s | Freq: {hz_val} Hz | Message: {text}")
+                print(f"[{utc_str}] SNR: {snr:.2f} dB | DT: {dt}s | Freq: {hz_val} Hz | Message: {text}")
 
-                # Build dictionary for the individual message data
                 msg_entry = {}
 
                 try:
                     radar_data = analyze(waveform, msg)
-                    print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['doppler_shift_hz']} Hz | Multipaths: {radar_data['path_shifts']}")
-                    
-                    # Store radar results directly into the message dictionary
+                    print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['doppler_shift_hz']:.2f} Hz | Multipaths: {radar_data['path_shifts']}")
                     msg_entry["radar_analysis"] = radar_data
                 except Exception as eval_err:
-                    print(f"  └─ Analysis error: {eval_err}")
-                    msg_entry["radar_analysis"] = {"error": str(eval_err)}
+                    # Clean up the output stream and catch the exception string cleanly
+                    err_msg = str(eval_err).strip() if str(eval_err) else "Unknown parsing error"
+                    print(f"  └─ Analysis error: {err_msg}")
+                    msg_entry["radar_analysis"] = {"error": err_msg}
 
                 slot_data_log.append(msg_entry)
 
-            # Save the gathered data to a timestamped JSON file if messages exist
+            # Save data using our custom encoder to fix the int64 crash
             if slot_data_log:
                 json_filename = f"ft8_radar_{file_timestamp}.json"
                 with open(json_filename, "w", encoding="utf-8") as f:
-                    json.dump(slot_data_log, f, indent=4)
+                    json.dump(slot_data_log, f, cls=NumpyEncoder, indent=4)
                 print(f"\n[Saved] Slot data successfully written to {json_filename}")
 
         except KeyboardInterrupt:
