@@ -16,39 +16,16 @@ sender = ft8.FT8Send()
 
 def isolate_signal_time_domain(waveform, center_hz, sample_rate=12000, bandwidth=70.0):
     """
-    Isolates a single FT8 signal in the frequency domain using STFT,
-    clears all other signals, and returns a clean time-domain waveform via ISTFT.
-    Perfect for preparing clean inputs for passive radar CAF calculations.
+    Isolates a single FT8 signal in the frequency domain using Butterworth bandpass filter,
     """
-    # 1. Match the FT8 symbol duration (~0.16 seconds)
-    nperseg = int(sample_rate * 0.16)
-    noverlap = int(nperseg * 0.75)  # High overlap preserves phase perfectly
     
-    # 2. Go to frequency domain
-    frequencies, times, Zxx = signal.stft(
-        waveform, 
-        fs=sample_rate, 
-        window='hann', 
-        nperseg=nperseg, 
-        noverlap=noverlap
-    )
+    nyquist = sample_rate / 2.0
+    low = (center_hz - (bandwidth / 2.0)) / nyquist
+    high = (center_hz + (bandwidth / 2.0)) / nyquist
     
-    # 3. Create a strict mask for our target signal window
-    half_bw = bandwidth / 2.0
-    outside_mask = (frequencies < (center_hz - half_bw)) | (frequencies > (center_hz + half_bw))
-    
-    # 4. CRITICAL: Zero out everything else (destroys interference & noise floor)
-    Zxx_isolated = Zxx.copy()
-    Zxx_isolated[outside_mask, :] = 0.0
-    
-    # 5. Return to the time domain cleanly
-    _, isolated_waveform = signal.istft(
-        Zxx_isolated, 
-        fs=sample_rate, 
-        window='hann', 
-        nperseg=nperseg, 
-        noverlap=noverlap
-    )
+    b, a = signal.butter(4, [low, high], btype='band')
+    # Use filtfilt for ZERO phase distortion during filtering
+    isolated_waveform = signal.filtfilt(b, a, waveform)
     
     # Trim or pad to match the original waveform size exactly if needed
     if len(isolated_waveform) > len(waveform):
@@ -103,7 +80,10 @@ def analyze(waveform, msg, sample_rate=12000):
     """
     Part two: use the CAF to calculate radar metrics
     """
-    caf_result, doppler_result = calculate_caf(waveform_iq, synthetic_iq)
+
+    costas_samples = int((7 * 0.16) * sample_rate) + sample_offset
+
+    caf_result, doppler_result = calculate_caf(waveform_iq[:costas_samples], synthetic_iq[:costas_samples])
 
     detected_delay, detected_doppler, peak_row = extract_radar_peaks(
         caf_result, doppler_result, max_delay_samples=700
@@ -119,6 +99,11 @@ def analyze(waveform, msg, sample_rate=12000):
     )
     
     print(f"Finished analyzing signal @ {hz_val} Hz")
+
+    if True:
+        from visualize_ambiguity import plot_ambiguity_surface
+
+        plot_ambiguity_surface(caf_result, doppler_result, sample_rate, max_delay_samples=700, doppler_zoom_hz=15)
     
     return {
         "message": msg,

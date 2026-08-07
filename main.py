@@ -21,10 +21,10 @@ def main():
     card_desc = ["4", "0"]
     receiver = FT8BlockReceiver(card_desc=card_desc, sample_rate=12000)
 
-    print("Waiting for next UTC slot boundary (:00, :15, :30, :45)...")
-
     if True:
         try:
+            print("Waiting for next UTC slot boundary (:00, :15, :30, :45)...")
+
             waveform, future, slot_utc = receiver.capture_utc_slot_async()
 
             # Retrieve decoded messages from background process
