@@ -1,6 +1,6 @@
 import numpy as np
 
-def calculate_caf(received_signal, reference_signal, sample_rate=12000.0, span_hz=50.0, bs_hz=0.10):
+def calculate_caf(received_signal, reference_signal, sample_rate=12000.0, span_hz=25.0, bs_hz=0.10):
     # Note: this function was debugged with the help of AI.
     """
     Computes a decoupled Cross-Ambiguity Function (CAF).
@@ -10,7 +10,6 @@ def calculate_caf(received_signal, reference_signal, sample_rate=12000.0, span_h
     signal_length = len(reference_signal)
     t = np.arange(signal_length) / sample_rate
     
-    # 1. Build a clean, precise Doppler frequency search axis matching your specs
     doppler_axis = np.arange(-span_hz, span_hz + bs_hz, bs_hz)
     
     # Rows: Doppler bins, Columns: Time delay options (full signal length correlation)

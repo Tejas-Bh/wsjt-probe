@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s')
+
 import time
 import os
 import json
@@ -18,17 +22,33 @@ class NumpyEncoder(json.JSONEncoder):
         return super(NumpyEncoder, self).default(obj)
 
 def main():
-    card_desc = ["4", "0"]
+    # card_desc = ["4", "0"]  # local sound card: card 4, channel 0
+    #
+    # dial_khz = 14074.0, used as given. One thing worth watching on the
+    # Kiwi's waterfall the first time you run this: "iq" mode is a true
+    # zero-IF tap centered exactly on dial_khz, and zero-IF receivers can
+    # have a DC/LO-leakage spike sitting right at 0 Hz baseband. If your
+    # FT8 traffic (audio ~200-2900 Hz per weakmon's real_min_hz/max_hz)
+    # is landing close to that, you'd see it as a birdie in the CAF too.
+    # I haven't seen your waterfall so I can't tell you whether this
+    # actually bites on a Kiwi in practice -- if it does, retuning a
+    # little (e.g. dial_khz = 14073.0, everything else unchanged since
+    # hz_val is relative to dial freq either way) is the standard fix.
+    card_desc = ["kiwi", "22477.proxy.kiwisdr.com:8073:14074.0"]
     receiver = FT8BlockReceiver(card_desc=card_desc, sample_rate=12000)
 
-    if True:
+    while True:
         try:
             print("Waiting for next UTC slot boundary (:00, :15, :30, :45)...")
 
-            waveform, future, slot_utc = receiver.capture_utc_slot_async()
+            waveform, iq_waveform, future, slot_utc = receiver.capture_utc_slot_async()
+
+            print("Captured waveform")
 
             # Retrieve decoded messages from background process
             messages = future.result()
+
+            print("Retrieved messages")
 
             utc_str = time.strftime("%H:%M:%S UTC", time.gmtime(slot_utc))
             file_timestamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime(slot_utc))
@@ -49,7 +69,9 @@ def main():
                 msg_entry = {}
 
                 try:
-                    radar_data = analyze(waveform, msg)
+                    radar_data = analyze(
+                        waveform, msg, sample_rate=receiver.sample_rate, iq_waveform=iq_waveform
+                    )
                     print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['doppler_shift_hz']:.2f} Hz | Multipaths: {radar_data['path_shifts']}")
                     msg_entry["radar_analysis"] = radar_data
                 except Exception as eval_err:
