@@ -377,3 +377,6 @@ class KiwiSDR(object):
         if self.resampler_iq is None or self.resampler_iq.from_rate != src_rate:
             self.resampler_iq = weakutil.Resampler(src_rate, dst_rate)
         return self.resampler_iq.resample(buf1)
+
+# del KiwiSDR().bufbuf
+# del KiwiSDR().bufbuf_iq

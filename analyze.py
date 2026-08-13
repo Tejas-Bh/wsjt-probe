@@ -72,6 +72,52 @@ def isolate_signal_iq(iq_waveform, center_hz, sample_rate=12000, bandwidth=90.0)
     return filtered_baseband * np.exp(1j * 2 * np.pi * center_hz * t)
 
 
+def compute_phase_stability(rx_iq, ref_iq):
+    """
+    Extracts the instantaneous phase added by the channel and measures its stability.
+    """
+    # Time-domain deconvolution removes the FT8 phase changes
+    channel_samples = rx_iq * np.conj(ref_iq)
+    
+    # Extract the unwrapped phase trajectory
+    instantaneous_phase = np.unwrap(np.angle(channel_samples))
+    
+    # Measure phase stability (Standard Deviation of the phase fluctuations)
+    # High values indicate severe fading, scattering, or rapid layer movement
+    phase_variance_rad = np.std(instantaneous_phase)
+    
+    # Calculate phase velocity (mean slope), which maps directly to the rate of TEC change
+    time_steps = np.arange(len(instantaneous_phase))
+    slope, _ = np.polyfit(time_steps, instantaneous_phase, 1)
+    
+    return float(phase_variance_rad), float(slope)
+
+def compute_doppler_spread(rx_iq, ref_iq, sample_rate):
+    """
+    Measures the frequency broadening (Doppler Spread) of the channel profile.
+    """
+    # Multiply received signal by the complex conjugate of the reference to de-modulate it
+    # This leaves behind only the complex channel variations (fading, phase shifts)
+    channel_phase_evolution = rx_iq * np.conj(ref_iq)
+    
+    # Compute the Power Spectral Density (PSD) of the isolated channel variations
+    fft_vals = np.fft.fftshift(np.fft.fft(channel_phase_evolution))
+    freqs = np.fft.fftshift(np.fft.fftfreq(len(channel_phase_evolution), d=1/sample_rate))
+    psd = np.abs(fft_vals) ** 2
+    
+    # Isolate the immediate area around 0 Hz center to avoid capturing out-of-band noise
+    center_mask = (freqs > -5.0) & (freqs < 5.0)
+    clean_psd = psd[center_mask]
+    clean_freqs = freqs[center_mask]
+    
+    # Calculate the RMS frequency spread
+    mean_freq = np.sum(clean_psd * clean_freqs) / np.sum(clean_psd)
+    doppler_spread_hz = np.sqrt(np.sum(clean_psd * (clean_freqs - mean_freq)**2) / np.sum(clean_psd))
+    
+    return float(doppler_spread_hz)
+
+
+
 def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
     """
     Part one: reconstructing the I/Q reference signal and aligning dt
@@ -210,7 +256,24 @@ def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
             % (dt, costas_samples, costas_samples / float(sample_rate), min_usable_samples)
         )
 
-    caf_result, doppler_result = calculate_caf(waveform_iq[:costas_samples], synthetic_iq[:costas_samples])
+    phase_slope = compute_phase_stability(waveform_iq, synthetic_iq)
+
+    # 1. Extract true Doppler from your phase slope calculation
+    actual_slope = phase_slope[1]
+    true_doppler = (actual_slope * sample_rate) / (2 * np.pi)
+    
+    # 2. De-drift the receiver array before running the CAF
+    t_vector = np.arange(len(waveform_iq)) / sample_rate
+    correction_vector = np.exp(-1j * 2 * np.pi * true_doppler * t_vector)
+    corrected_waveform_iq = waveform_iq * correction_vector
+    
+    # 3. Feed the corrected waveform into your CAF windows
+    caf_result, doppler_result = calculate_caf(
+        corrected_waveform_iq[:costas_samples], 
+        synthetic_iq[:costas_samples]
+    )
+
+    # caf_result, doppler_result = calculate_caf(waveform_iq[:costas_samples], synthetic_iq[:costas_samples])
 
     detected_delay, detected_doppler, peak_row = extract_radar_peaks(
         caf_result, doppler_result, max_delay_samples=700
@@ -245,11 +308,17 @@ def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
     #     plt.xlabel("Index")
     #     plt.ylabel("Phase (radians)")
     #     plt.show()
+
+
+
     
     return {
         "message": msg,
         "path_delay_samples": detected_delay,
-        "doppler_shift_hz": detected_doppler,
+        "caf_doppler_shift_hz": detected_doppler,
+        "true_doppler_shift_hz": (actual_slope * sample_rate) / (2 * np.pi),
         "path_shifts": len(peaks_found),
-        "path_shifts_freqs": [doppler_result[i] for i in peaks_found]
+        "path_shifts_freqs": [doppler_result[i] for i in peaks_found],
+        "doppler_spread": compute_doppler_spread(waveform_iq, synthetic_iq, sample_rate),
+        "phase_stability": phase_slope
     }
