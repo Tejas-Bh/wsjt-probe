@@ -35,7 +35,7 @@ def main():
     # little (e.g. dial_khz = 14073.0, everything else unchanged since
     # hz_val is relative to dial freq either way) is the standard fix.
     # card_desc = ["kiwi", "22477.proxy.kiwisdr.com:8073:14074.0"]
-    card_desc = ["kiwi", "kop.utvarp.com:80:14074.0"]
+    card_desc = ["kiwi", "22458.proxy.kiwisdr.com:8073:14074.0"]
     receiver = FT8BlockReceiver(card_desc=card_desc, sample_rate=12000)
 
     while True:
@@ -45,6 +45,7 @@ def main():
             waveform, iq_waveform, future, slot_utc = receiver.capture_utc_slot_async()
 
             print("Captured waveform")
+            # print(f"[DEBUG] Waveform shape: {waveform.shape}, Non-zero samples: {np.count_nonzero(waveform)}, RMS: {np.sqrt(np.mean(waveform**2)):.6f}")
 
             # Retrieve decoded messages from background process
             messages = future.result()
@@ -73,7 +74,8 @@ def main():
                     radar_data = analyze(
                         waveform, msg, sample_rate=receiver.sample_rate, iq_waveform=iq_waveform
                     )
-                    print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['true_doppler_shift_hz']:.2f} Hz | Multipaths: {radar_data['path_shifts']}")
+                    # print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['true_doppler_shift_hz']:.2f} Hz | Multipaths: {radar_data['path_shifts']}")
+                    print(radar_data)
                     msg_entry["radar_analysis"] = radar_data
                 except Exception as eval_err:
                     # Clean up the output stream and catch the exception string cleanly

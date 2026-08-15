@@ -56,7 +56,11 @@ class FT8BlockReceiver:
         self.sample_rate = sample_rate
         self.audio_stream = weakaudio.new(self.card_desc, self.sample_rate)
         # ProcessPoolExecutor isolates decoder CPU execution from audio streaming
-        self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=max_workers)
+        # self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=max_workers)
+        self.executor = concurrent.futures.ProcessPoolExecutor(
+            max_workers=1, 
+            max_tasks_per_child=1  # Recycles the worker process after every decode
+        )
 
     def wait_until_next_slot(self, slot_seconds=15.0):
         now = time.time()
@@ -68,14 +72,12 @@ class FT8BlockReceiver:
 
         target_utc_start = now + wait_time
 
+        # Flush any stale audio accumulated while main.py was running analyze()
+        if hasattr(self.audio_stream, "flush"):
+            self.audio_stream.flush()
+
         has_iq = hasattr(self.audio_stream, "read_iq")
 
-        # Drain audio continuously while waiting for boundary. If the
-        # source also exposes a parallel raw-IQ stream (see kiwisdr.py),
-        # drain that too -- it's a separate buffer that fills in the
-        # background regardless of whether anyone reads it, so leaving
-        # it undrained here would just accumulate every sample since
-        # startup until the first capture_utc_slot_async() call.
         while time.time() < target_utc_start:
             self.audio_stream.read()
             if has_iq:

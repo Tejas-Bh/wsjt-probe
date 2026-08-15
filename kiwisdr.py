@@ -243,6 +243,25 @@ class KiwiSDR(object):
         self._drain_thread.daemon = True
         self._drain_thread.start()
 
+
+    def flush(self):
+        """Flushes all accumulated/backlogged audio in queues and buffers."""
+        self.cardlock.acquire()
+        self.bufbuf = []
+        self.bufbuf_iq = []
+        self.cardcount = 0
+        self.cardcount_iq = 0
+        self.starttime = None
+        self.starttime_iq = None
+        self.cardlock.release()
+
+        # Drain the underlying thread queue
+        while not self._sample_queue.empty():
+            try:
+                self._sample_queue.get_nowait()
+            except Exception:
+                break
+
     def _drain_loop(self):
         # move samples from the KiwiIQStream's queue into our own
         # buffers -- one feeding read() (the SDRIP-style real-audio
@@ -308,6 +327,7 @@ class KiwiSDR(object):
         buf1 = numpy.concatenate(bufbuf)
         return [buf1, buf_time]
 
+
     def postprocess(self, buf1):
         if len(buf1) == 0:
             return numpy.array([])
@@ -346,18 +366,18 @@ class KiwiSDR(object):
         self.cardlock.acquire()
         bufbuf = self.bufbuf_iq
         cardcount = self.cardcount_iq
+        
+        # Reset state here too
         self.bufbuf_iq = []
+        self.cardcount_iq = 0
+        self.starttime_iq = None
         self.cardlock.release()
 
-        if self.starttime_iq is not None:
-            buf_time = self.starttime_iq + cardcount / float(self._effective_rate())
-        else:
-            buf_time = time.time()
-
         if len(bufbuf) == 0:
-            return [numpy.array([], dtype=numpy.complex64), buf_time]
+            return [numpy.array([], dtype=numpy.complex64), time.time()]
 
         buf1 = numpy.concatenate(bufbuf)
+        buf_time = time.time()
         return [buf1, buf_time]
 
     def postprocess_iq(self, buf1):

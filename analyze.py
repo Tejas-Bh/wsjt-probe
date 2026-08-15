@@ -1,3 +1,6 @@
+import re
+import numpy as np
+import scipy.signal as signal
 from pathlib import Path
 import sys
 
@@ -5,320 +8,236 @@ sys.path.insert(0, str(Path(__file__).parent / "weakmon"))
 sys.path.insert(0, str(Path(__file__).parent / "tools"))
 
 import ft8
-import re
-import weakutil
-import scipy.signal as signal
-
-from processor import calculate_caf, extract_radar_peaks
-import numpy as np
-
-# import matplotlib
-# matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
 sender = ft8.FT8Send()
 
-def isolate_signal_time_domain(waveform, center_hz, sample_rate=12000, bandwidth=70.0):
-    """
-    Isolates a single FT8 signal in the frequency domain using Butterworth bandpass filter,
-    """
-    
-    nyquist = sample_rate / 2.0
-    low = (center_hz - (bandwidth / 2.0)) / nyquist
-    high = (center_hz + (bandwidth / 2.0)) / nyquist
-    
-    b, a = signal.butter(4, [low, high], btype='band')
-    # Use filtfilt for minimal phase distortion during filtering
-    isolated_waveform = signal.filtfilt(b, a, waveform)
-    
-    # Trim or pad to match the original waveform size exactly if needed
-    if len(isolated_waveform) > len(waveform):
-        isolated_waveform = isolated_waveform[:len(waveform)]
-    elif len(isolated_waveform) < len(waveform):
-        isolated_waveform = np.pad(isolated_waveform, (0, len(waveform) - len(isolated_waveform)))
-        
-    return isolated_waveform
-
 
 def isolate_signal_iq(iq_waveform, center_hz, sample_rate=12000, bandwidth=90.0):
-    """
-    Same job as isolate_signal_time_domain(), but for genuine complex I/Q
-    instead of real audio: isolate a single FT8 signal's band directly
-    out of the true I/Q, without ever going through a real-valued
-    intermediate. This is what lets analyze() skip the
-    bandpass-real-audio -> Hilbert-reconstruct-analytic-signal round trip
-    when true I/Q is available (see the iq_waveform branch in analyze()).
-
-    Because scipy doesn't have a ready-made complex bandpass, this does
-    the standard trick: mix the desired band down to 0 Hz, run a real
-    lowpass (butter+filtfilt, same filter design as the real-audio path,
-    just lowpass instead of bandpass), then mix back up. filtfilt handles
-    complex input fine (verified directly: 67 dB rejection of a synthetic
-    400 Hz-away decoy tone in testing). Net effect is the same shape of
-    output as isolate_signal_time_domain()+hilbert() used to produce --
-    a complex signal still "at" center_hz, not shifted to baseband -- so
-    everything downstream (dt alignment, calculate_caf()) is unchanged.
-    """
+    """Isolates FT8 channel band directly out of complex I/Q."""
     n = len(iq_waveform)
     t = np.arange(n) / sample_rate
 
+    # Mix down to baseband, lowpass filter, mix back up
     shifted_down = iq_waveform * np.exp(-1j * 2 * np.pi * center_hz * t)
 
     nyquist = sample_rate / 2.0
     cutoff = (bandwidth / 2.0) / nyquist
-    b, a = signal.butter(4, cutoff, btype='low')
+    b, a = signal.butter(4, cutoff, btype="low")
     filtered_baseband = signal.filtfilt(b, a, shifted_down)
 
     return filtered_baseband * np.exp(1j * 2 * np.pi * center_hz * t)
 
 
-def compute_phase_stability(rx_iq, ref_iq):
+def extract_tap_metrics(channel_samples, sample_rate):
     """
-    Extracts the instantaneous phase added by the channel and measures its stability.
+    Extracts Watterson channel parameters (Doppler Shift, Doppler Spread,
+    Phase Rate, Phase Jitter) from a de-modulated channel response c(t).
     """
-    # Time-domain deconvolution removes the FT8 phase changes
-    channel_samples = rx_iq * np.conj(ref_iq)
-    
-    # Extract the unwrapped phase trajectory
-    instantaneous_phase = np.unwrap(np.angle(channel_samples))
-    
-    # Measure phase stability (Standard Deviation of the phase fluctuations)
-    # High values indicate severe fading, scattering, or rapid layer movement
-    phase_variance_rad = np.std(instantaneous_phase)
-    
-    # Calculate phase velocity (mean slope), which maps directly to the rate of TEC change
-    time_steps = np.arange(len(instantaneous_phase))
-    slope, _ = np.polyfit(time_steps, instantaneous_phase, 1)
-    
-    return float(phase_variance_rad), float(slope)
+    n = len(channel_samples)
+    t = np.arange(n) / sample_rate
 
-def compute_doppler_spread(rx_iq, ref_iq, sample_rate):
-    """
-    Measures the frequency broadening (Doppler Spread) of the channel profile.
-    """
-    # Multiply received signal by the complex conjugate of the reference to de-modulate it
-    # This leaves behind only the complex channel variations (fading, phase shifts)
-    channel_phase_evolution = rx_iq * np.conj(ref_iq)
-    
-    # Compute the Power Spectral Density (PSD) of the isolated channel variations
-    fft_vals = np.fft.fftshift(np.fft.fft(channel_phase_evolution))
-    freqs = np.fft.fftshift(np.fft.fftfreq(len(channel_phase_evolution), d=1/sample_rate))
-    psd = np.abs(fft_vals) ** 2
-    
-    # Isolate the immediate area around 0 Hz center to avoid capturing out-of-band noise
-    center_mask = (freqs > -5.0) & (freqs < 5.0)
-    clean_psd = psd[center_mask]
-    clean_freqs = freqs[center_mask]
-    
-    # Calculate the RMS frequency spread
-    mean_freq = np.sum(clean_psd * clean_freqs) / np.sum(clean_psd)
-    doppler_spread_hz = np.sqrt(np.sum(clean_psd * (clean_freqs - mean_freq)**2) / np.sum(clean_psd))
-    
-    return float(doppler_spread_hz)
+    # 1. Spectral Analysis for Doppler Shift & Spread
+    window = signal.windows.hann(n)
+    fft_vals = np.fft.fftshift(np.fft.fft(channel_samples * window))
+    freqs = np.fft.fftshift(np.fft.fftfreq(n, d=1.0 / sample_rate))
 
+    # Isolate spectral region around baseband (-15 Hz to +15 Hz)
+    mask = (freqs >= -15.0) & (freqs <= 15.0)
+    psd = np.abs(fft_vals[mask]) ** 2
+    f_axis = freqs[mask]
+
+    psd_sum = np.sum(psd)
+    if psd_sum == 0:
+        return 0.0, 0.0, 0.0, 0.0, 0.0
+
+    # Center of mass -> Mean Doppler shift
+    doppler_shift = np.sum(psd * f_axis) / psd_sum
+
+    # RMS Width -> Doppler Spread
+    doppler_spread = np.sqrt(np.sum(psd * (f_axis - doppler_shift) ** 2) / psd_sum)
+
+    # Total path power
+    path_power = psd_sum
+
+    # 2. Phase Dynamics (Phase Velocity & Jitter)
+    unwrapped_phase = np.unwrap(np.angle(channel_samples))
+
+    # Linear fit: phase = slope * t + intercept
+    slope, _ = np.polyfit(t, unwrapped_phase, 1)
+    phase_jitter = np.std(unwrapped_phase - (slope * t))
+
+    return (
+        float(doppler_shift),
+        float(doppler_spread),
+        float(path_power),
+        float(slope),
+        float(phase_jitter),
+    )
 
 
 def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
     """
-    Part one: reconstructing the I/Q reference signal and aligning dt
-
-    iq_waveform: optional genuine complex I/Q covering the same slot as
-    `waveform`, same sample_rate, same length (e.g. from
-    KiwiSDR.read_iq() in kiwisdr.py). When given, this is used directly
-    for waveform_iq instead of bandpass-filtering the real `waveform` and
-    reconstructing an approximate analytic signal via hilbert() -- the
-    real thing instead of a Hilbert approximation of it. `waveform`
-    itself is still required, since it's what the FT8 decoder decoded
-    (msg's hz/dt/message came from it) and is used as the fallback when
-    iq_waveform isn't available, e.g. plain sound-card sources.
+    Analyzes an FT8 reception and parameterizes the ionospheric propagation channel
+    into a compact Watterson Channel Model tap profile.
     """
-
     hz_val = msg["hz"]() if callable(msg["hz"]) else msg["hz"]
     msg["hz"] = hz_val
 
-    # hz_val (as reported by weakmon's decoder, and as passed to
-    # FT8Send.tones() below) is the frequency of *tone 0*, not the center
-    # of the signal. FT8 is 8-FSK at 6.25 Hz spacing (weakutil.fsk()), so
-    # the real signal occupies [hz_val, hz_val + 7*6.25] = a 43.75 Hz
-    # span above hz_val, not centered on it. A +/-35 Hz filter centered on
-    # hz_val therefore clips the top of that span (tone 7 sits at
-    # hz_val+43.75, outside the passband entirely; tone 6 at hz_val+37.5
-    # is right on the rolloff edge) -- a real, if secondary, source of
-    # signal-dependent SNR loss and extra CAF phase distortion on top of
-    # the costas_samples bug above. Centering on the middle of the tone
-    # span and widening the passband a bit fixes it.
-    ft8_tone_spacing_hz = 6.25
-    ft8_num_tones = 8
-    ft8_signal_span_hz = ft8_tone_spacing_hz * (ft8_num_tones - 1)  # 43.75 Hz
+    ft8_signal_span_hz = 6.25 * 7  # 43.75 Hz
     filter_center_hz = hz_val + ft8_signal_span_hz / 2.0
 
+    # 1. Isolate target signal
     if iq_waveform is not None:
-        # True I/Q path: no bandpass-then-hilbert round trip. iq2usb()
-        # (the phasing-method SSB demod used upstream to produce
-        # `waveform` for the decoder) doesn't shift frequencies, so
-        # hz_val is on the same Hz scale in iq_waveform as it is in
-        # `waveform` -- no rescaling needed here.
         if len(iq_waveform) != len(waveform):
             n = min(len(iq_waveform), len(waveform))
             iq_waveform = iq_waveform[:n]
-        waveform_iq = isolate_signal_iq(
+        rx_iq = isolate_signal_iq(
             iq_waveform, center_hz=filter_center_hz, sample_rate=sample_rate, bandwidth=90.0
         )
     else:
-        clean_waveform = isolate_signal_time_domain(
-            waveform, center_hz=filter_center_hz, sample_rate=sample_rate, bandwidth=90.0
-        )
-        waveform_iq = signal.hilbert(clean_waveform)
+        nyquist = sample_rate / 2.0
+        low = (filter_center_hz - 45.0) / nyquist
+        high = (filter_center_hz + 45.0) / nyquist
+        b, a = signal.butter(4, [low, high], btype="band")
+        clean_audio = signal.filtfilt(b, a, waveform)
+        rx_iq = signal.hilbert(clean_audio)
 
-    # Pack message into 77-bit FT8 payload
-    if not re.match(r'^([A-Z0-9]+) ([A-Z0-9]+) (5[2-9]9) ([A-Z]+)$', msg["message"]):
-        i3 = 1
-    else:
-        i3 = 3
-
+    # 2. Synthesize clean reference signal
+    i3 = 3 if re.match(r"^([A-Z0-9]+) ([A-Z0-9]+) (5[2-9]9) ([A-Z]+)$", msg["message"]) else 1
     bits77 = sender.pack(msg["message"], i3)
+    audio_ref = sender.tones(bits77, hz_val, sample_rate)
+    ref_iq = signal.hilbert(audio_ref)
 
-    audio = sender.tones(bits77, hz_val, sample_rate)
-    synthetic_iq = signal.hilbert(audio)
+    min_len = min(len(rx_iq), len(ref_iq))
+    rx_iq = rx_iq[:min_len]
+    ref_iq = ref_iq[:min_len]
 
-    # Force equal length first to protect dimensions
-    min_len = min(len(waveform_iq), len(synthetic_iq))
-    waveform_iq = waveform_iq[:min_len]
-    synthetic_iq = synthetic_iq[:min_len]
-
+    # 3. Coarse dt alignment -- THE MISSING STEP.
+    #
+    # dt was being computed (below) and used only to bias where the
+    # correlation *search window* sat -- rx_iq itself was never actually
+    # shifted. rx_iq (from isolate_signal_iq on the full captured
+    # buffer) has its real signal starting wherever dt says it does --
+    # thousands of samples in -- while ref_iq starts its own tone
+    # sequence at index 0. The min_len slice above just chops the *tail*
+    # off rx_iq; it doesn't fix that the two arrays' real content starts
+    # at genuinely different absolute positions. That mismatch is what
+    # tap_delay_ms was actually reporting (confirmed directly: a 300-
+    # sample/25ms true extra delay came back as "594.58 ms", almost
+    # exactly the size of dt itself).
+    #
+    # This shift-and-pad is the same pattern validated earlier in this
+    # project: chop the front off whichever signal is "ahead" so both
+    # arrays' real content starts at the same index.
     dt = msg.get("dt", 0.0) or 0.0
+    initial_shift = int(dt * sample_rate)
+    if initial_shift > 0:
+        rx_iq = np.pad(rx_iq[initial_shift:], (0, initial_shift))
+    elif initial_shift < 0:
+        ref_iq = np.pad(ref_iq[-initial_shift:], (0, -initial_shift))
 
-    # Initialize shift to 0 in case dt == 0
-    sample_offset = 0
-    shift = 0
+    # 4. Coarse Doppler pilot estimate, to compensate the short window
+    # below before delay-finding.
+    #
+    # The delay-vs-Doppler bias just above is systematic, not noise
+    # (confirmed directly: ~-34 samples at 0.4 Hz, ~-176 samples at
+    # 1.5 Hz, consistent regardless of the true delay) -- exactly the
+    # decorrelation-smearing signature, so it's correctable rather than
+    # something to just average away. rx_iq/ref_iq are already
+    # dt-aligned above, so residual delay here is small (a fine
+    # multipath offset, not weakmon's whole dt search range) -- safe
+    # for a single coherent FFT read of the full-length channel
+    # estimate to find a coarse Doppler, unlike trying this before any
+    # delay alignment at all (that failure mode: an unresolved
+    # multi-hundred-sample delay leaves the FT8 modulation not fully
+    # cancelled, creating a periodic artifact at the 6.25 Hz symbol
+    # rate and its harmonics that can outweigh a genuine sub-Hz
+    # Doppler peak -- tested and confirmed separately; not an issue
+    # here because dt has already done the coarse alignment).
+    pilot_channel_est = rx_iq * np.conj(ref_iq)
+    pilot_window = signal.windows.hann(len(pilot_channel_est))
+    pilot_X = np.fft.fftshift(np.fft.fft(pilot_channel_est * pilot_window))
+    pilot_freqs = np.fft.fftshift(np.fft.fftfreq(len(pilot_channel_est), d=1.0 / sample_rate))
+    pilot_mask = (pilot_freqs >= -50.0) & (pilot_freqs <= 50.0)
+    pilot_doppler_hz = float(pilot_freqs[pilot_mask][np.argmax(np.abs(pilot_X[pilot_mask]) ** 2)])
 
-    if dt != 0.0:
-        sample_offset = int(dt * sample_rate)
-        
-        # dt is positive: Shift waveform_iq EARLIER (chop front, pad back)
-        if sample_offset > 0:
-            shift = sample_offset
-            waveform_iq = np.pad(waveform_iq[shift:], (0, shift), mode='constant')
-            
-        # dt is negative: Shift synthetic_iq EARLIER (chop front, pad back)
-        elif sample_offset < 0:
-            shift = abs(sample_offset)
-            synthetic_iq = np.pad(synthetic_iq[shift:], (0, shift), mode='constant')
+    # 5. Fine delay search via cross-correlation -- SHORT window only,
+    # now Doppler-compensated using the pilot estimate.
+    costas_samples = min(int(7 * 0.16 * sample_rate), min_len)
+    t_short = np.arange(costas_samples) / sample_rate
+    rx_short = rx_iq[:costas_samples] * np.exp(-1j * 2 * np.pi * pilot_doppler_hz * t_short)
+    ref_short = ref_iq[:costas_samples]
 
-    if False:
-        # --- RESTORED VISUALIZATION BLOCK (Variables safely defined) ---
-        plt.figure(figsize=(12, 4))
-        sample_axis = np.arange(min_len)
-        
-        # Isolate the real components of the aligned analytical signals
-        waveform_baseband = np.real(waveform_iq)
-        synthetic_baseband = np.real(synthetic_iq)
-        
-        plt.plot(sample_axis, np.abs(waveform_baseband), label="received (baseband magnitude)", linewidth=1.0)
-        plt.plot(sample_axis, np.abs(synthetic_baseband), label="synthetic (baseband magnitude)", linewidth=1.0, alpha=0.8)
-        plt.xlabel("Sample")
-        plt.ylabel("Envelope Amplitude")
-        plt.title(f"Baseband Envelopes (dt={dt:.6f}s, applied_offset={sample_offset} samples)")
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig("caf_debug_real_components.png", dpi=150)
-        plt.close()
+    corr = signal.correlate(rx_short, ref_short, mode="full")
+    lags = signal.correlation_lags(len(rx_short), len(ref_short))
 
-        input("Press Enter to continue to CAF analysis...==================================================================================================")
+    # Search window now centered on 0 (rx_iq/ref_iq are already
+    # dt-aligned), not on dt itself.
+    search_window_ms = 25.0
+    search_window = int((search_window_ms / 1000.0) * sample_rate)
+    center_idx = np.argmin(np.abs(lags - 0))
+    start_idx = max(0, center_idx - search_window)
+    end_idx = min(len(corr), center_idx + search_window)
 
-    """
-    Part two: use the CAF to calculate radar metrics
-    """
+    corr_slice = np.abs(corr[start_idx:end_idx])
+    lag_slice = lags[start_idx:end_idx]
 
-    nominal_costas_samples = int((7 * 0.16) * sample_rate)
-    costas_samples = nominal_costas_samples + sample_offset
+    # Find multipath peaks
+    max_val = np.max(corr_slice)
+    peaks, _ = signal.find_peaks(
+        corr_slice,
+        height=max_val * 0.4,
+        prominence=max_val * 0.2,
+        distance=int(0.002 * sample_rate) # must be 2 milliseconds apart
+    )
 
-    # Guard against a real bug: when dt is negative enough (beyond about
-    # -1.12s at 12000 Hz), costas_samples goes negative. numpy/Python do
-    # NOT raise on waveform_iq[:costas_samples] when costas_samples < 0 --
-    # a negative stop index is silently reinterpreted as "count back from
-    # the end", so calculate_caf() would get handed a window tens of
-    # thousands of samples long and badly misaligned, instead of the
-    # intended ~13k-sample Costas-only window. That would show up as
-    # exactly the kind of wildly-wrong, seemingly-random Doppler you're
-    # seeing -- and only "sometimes", because it only bites messages
-    # whose decoder-reported dt happens to be very negative. weakmon's
-    # own decoder (pass0_tminus/pass0_tplus in ft8.py) searches dt out to
-    # roughly -2.1s, so this is a reachable case for real off-air decodes,
-    # not just a theoretical one -- and it's very unlikely to ever trigger
-    # on synthetic/Watterson test signals where you control dt yourself,
-    # which would explain why this looked fine in testing.
-    min_usable_samples = int(3 * 0.16 * sample_rate)  # ~3 Costas symbols, bare minimum
-    if costas_samples < min_usable_samples:
-        raise ValueError(
-            "dt=%.3fs leaves only %d samples (%.3fs) for the CAF window "
-            "(need >= %d) -- skipping rather than silently mis-slicing"
-            % (dt, costas_samples, costas_samples / float(sample_rate), min_usable_samples)
+    if len(peaks) == 0:
+        peaks = [np.argmax(corr_slice)]
+
+    # Primary peak magnitude for relative power calculation
+    max_peak_power = corr_slice[peaks[0]] ** 2
+
+    watterson_taps = []
+    for p in peaks:
+        tap_lag = lag_slice[p]
+        tap_delay_ms = (tap_lag / sample_rate) * 1000.0
+
+        # Shift reference to align with this tap -- full-length signals
+        # now (not the short window used just above for delay-finding),
+        # so extract_tap_metrics gets full Doppler frequency resolution.
+        if tap_lag > 0:
+            rx_tap = rx_iq[tap_lag:]
+            ref_tap = ref_iq[: len(rx_tap)]
+        elif tap_lag < 0:
+            ref_tap = ref_iq[-tap_lag:]
+            rx_tap = rx_iq[: len(ref_tap)]
+        else:
+            rx_tap = rx_iq
+            ref_tap = ref_iq
+
+        # De-modulate channel response c(t) = rx * conj(ref)
+        channel_response = rx_tap * np.conj(ref_tap)
+
+        # Calculate Watterson parameters
+        d_shift, d_spread, power, p_rate, p_jitter = extract_tap_metrics(
+            channel_response, sample_rate
         )
 
-    phase_slope = compute_phase_stability(waveform_iq, synthetic_iq)
+        rel_power_db = 10 * np.log10(max(power / max_peak_power, 1e-6))
 
-    # 1. Extract true Doppler from your phase slope calculation
-    actual_slope = phase_slope[1]
-    true_doppler = (actual_slope * sample_rate) / (2 * np.pi)
-    
-    # 2. De-drift the receiver array before running the CAF
-    t_vector = np.arange(len(waveform_iq)) / sample_rate
-    correction_vector = np.exp(-1j * 2 * np.pi * true_doppler * t_vector)
-    corrected_waveform_iq = waveform_iq * correction_vector
-    
-    # 3. Feed the corrected waveform into your CAF windows
-    caf_result, doppler_result = calculate_caf(
-        corrected_waveform_iq[:costas_samples], 
-        synthetic_iq[:costas_samples]
-    )
+        watterson_taps.append(
+            {
+                "relative_delay_ms": float(tap_delay_ms),
+                "doppler_shift_hz": d_shift,
+                "doppler_rms_spread_hz": d_spread,
+                "relative_power_db": float(rel_power_db),
+                "phase_rate_rad_s": p_rate,
+                "phase_jitter_rad": p_jitter,
+            }
+        )
 
-    # caf_result, doppler_result = calculate_caf(waveform_iq[:costas_samples], synthetic_iq[:costas_samples])
-
-    detected_delay, detected_doppler, peak_row = extract_radar_peaks(
-        caf_result, doppler_result, max_delay_samples=700
-    )
-
-    noise_floor = np.mean(peak_row)
-    threshold = noise_floor + 4 * np.std(peak_row)
-
-    peaks_found, properties = signal.find_peaks(
-        peak_row,
-        height=threshold,
-        distance=10
-    )
-    
-    print(f"Finished analyzing signal @ {hz_val} Hz")
-
-    if False:
-        from visualize_ambiguity import plot_ambiguity_surface
-        plot_ambiguity_surface(caf_result, doppler_result, sample_rate, max_delay_samples=700, doppler_zoom_hz=25)
-
-    # """
-    # Part 3: analyzing phase data
-    # """
-    #
-    # quotient = waveform_iq / synthetic_iq
-    #
-    # phase = np.angle(quotient) # phase in radians
-    #
-    # if True: # PLOT THE PHASE
-    #     plt.plot(phase)
-    #     plt.title("Phase Plot")
-    #     plt.xlabel("Index")
-    #     plt.ylabel("Phase (radians)")
-    #     plt.show()
-
-
-
-    
     return {
         "message": msg,
-        "path_delay_samples": detected_delay,
-        "caf_doppler_shift_hz": detected_doppler,
-        "true_doppler_shift_hz": (actual_slope * sample_rate) / (2 * np.pi),
-        "path_shifts": len(peaks_found),
-        "path_shifts_freqs": [doppler_result[i] for i in peaks_found],
-        "doppler_spread": compute_doppler_spread(waveform_iq, synthetic_iq, sample_rate),
-        "phase_stability": phase_slope
+        "num_paths": len(watterson_taps),
+        "watterson_taps": watterson_taps,
     }
