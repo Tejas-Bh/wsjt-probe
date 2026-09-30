@@ -1,5 +1,5 @@
 # note: AI was used in developing this file. specifically, for the extract_tap_metrics() function and comment additions
-# however, the system architecture and signal processing flow were created in entirety by Tejas-Bh.
+# however, the system architecture and signal processing flow were created by Tejas-Bh.
 # if you have any questions, let me know!
 
 import re

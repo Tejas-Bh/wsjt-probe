@@ -27,3 +27,4 @@ __This is where I believe amateur radio modes could be used__.
 
 ## Acknowledgements
 __weakmon__ is used for encoding and decoding FT8 signals.
+__kiwiclient__ is used for connection to KiwiSDR.
