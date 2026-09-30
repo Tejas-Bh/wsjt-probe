@@ -1,3 +1,7 @@
+# note: AI was used in developing this file. specifically, for the extract_tap_metrics() function and comment additions
+# however, the system architecture and signal processing flow were created in entirety by Tejas-Bh.
+# if you have any questions, let me know!
+
 import re
 import numpy as np
 import scipy.signal as signal
@@ -9,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent / "tools"))
 
 import ft8
 
-sender = ft8.FT8Send()
+sender = ft8.FT8Send() # weakmon util
 
 
 def isolate_signal_iq(iq_waveform, center_hz, sample_rate=12000, bandwidth=90.0):
@@ -225,3 +229,4 @@ def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
         "num_paths": len(watterson_taps),
         "watterson_taps": watterson_taps,
     }
+    # yay
