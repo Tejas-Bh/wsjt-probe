@@ -34,8 +34,10 @@ def main():
     # actually bites on a Kiwi in practice -- if it does, retuning a
     # little (e.g. dial_khz = 14073.0, everything else unchanged since
     # hz_val is relative to dial freq either way) is the standard fix.
+    card_desc = ["kiwi", "marco5g.zapto.org:8073:7074.0"] # GERMANY, WORKS WELL @ 7-9PM GMT
+    # card_desc = ["rtlsdr", "0:28074.0:direct"]
+    # card_desc = ["kiwi", "azwhtmtns.proxy.kiwisdr.com:8073:14074.0"]
     # card_desc = ["kiwi", "22477.proxy.kiwisdr.com:8073:14074.0"]
-    card_desc = ["kiwi", "22458.proxy.kiwisdr.com:8073:14074.0"]
     receiver = FT8BlockReceiver(card_desc=card_desc, sample_rate=12000)
 
     while True:

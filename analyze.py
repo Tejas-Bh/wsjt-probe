@@ -1,6 +1,7 @@
-# note: AI was used in developing this file. specifically, for the extract_tap_metrics() function and comment additions
-# however, the system architecture and signal processing flow were created by Tejas-Bh.
-# if you have any questions, let me know!
+# TODO === TODO === TODO === TODO === TODO
+# remove vestigial phase jitter measurement
+# remove (or revise?) delay, radar range resolution is incredibly low to make an accurate guess
+# find multipath *properly* and revise hard-coded singular paths
 
 import re
 import numpy as np
@@ -15,6 +16,7 @@ import ft8
 
 sender = ft8.FT8Send() # weakmon util
 
+from channel_estimator import estimate_channel
 
 def isolate_signal_iq(iq_waveform, center_hz, sample_rate=12000, bandwidth=90.0):
     """Isolates FT8 channel band and returns true baseband (centered at 0 Hz)."""
@@ -131,102 +133,10 @@ def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
     min_len = min(len(rx_iq), len(ref_iq))
     rx_iq = rx_iq[:min_len]
     ref_iq = ref_iq[:min_len]
-
-    # 3. Time alignment offset using dt
-    dt = msg.get("dt", 0.0) or 0.0
-    initial_shift = int(dt * sample_rate)
-    if initial_shift > 0:
-        rx_iq = np.pad(rx_iq[initial_shift:], (0, initial_shift))
-    elif initial_shift < 0:
-        ref_iq = np.pad(ref_iq[-initial_shift:], (0, -initial_shift))
-
-    # 4. Doppler pilot estimation
-    pilot_channel_est = rx_iq * np.conj(ref_iq)
-    pilot_window = signal.windows.hann(len(pilot_channel_est))
-    pilot_X = np.fft.fftshift(np.fft.fft(pilot_channel_est * pilot_window))
-    pilot_freqs = np.fft.fftshift(np.fft.fftfreq(len(pilot_channel_est), d=1.0 / sample_rate))
-    pilot_mask = (pilot_freqs >= -50.0) & (pilot_freqs <= 50.0)
-    pilot_doppler_hz = float(pilot_freqs[pilot_mask][np.argmax(np.abs(pilot_X[pilot_mask]) ** 2)])
-
-    # 5. Cross-correlation fine delay search
-    costas_samples = min(int(7 * 0.16 * sample_rate), min_len)
-    t_short = np.arange(costas_samples) / sample_rate
-    rx_short = rx_iq[:costas_samples] * np.exp(-1j * 2 * np.pi * pilot_doppler_hz * t_short)
-    ref_short = ref_iq[:costas_samples]
-
-    corr = signal.correlate(rx_short, ref_short, mode="full")
-    lags = signal.correlation_lags(len(rx_short), len(ref_short))
-
-    # Search window relative to time alignment baseline (0 to +25ms)
-    search_window_ms = 25.0
-    search_window = int((search_window_ms / 1000.0) * sample_rate)
-    center_idx = np.argmin(np.abs(lags - 0))
     
-    # Restrict lag search to non-negative delays
-    start_idx = center_idx
-    end_idx = min(len(corr), center_idx + search_window)
-
-    corr_slice = np.abs(corr[start_idx:end_idx])
-    lag_slice = lags[start_idx:end_idx]
-
-    max_val = np.max(corr_slice) if len(corr_slice) > 0 else 1.0
-    peaks, _ = signal.find_peaks(
-        corr_slice,
-        height=max_val * 0.4,
-        prominence=max_val * 0.2,
-        distance=int(0.002 * sample_rate)
-    )
-
-    if len(peaks) == 0:
-        peaks = [np.argmax(corr_slice)] if len(corr_slice) > 0 else [0]
-
-    # Calculate initial metrics to identify peak power baseline
-    raw_taps = []
-    for p in peaks:
-        tap_lag = lag_slice[p]
-        tap_delay_ms = max(0.0, (tap_lag / sample_rate) * 1000.0)
-
-        if tap_lag > 0:
-            rx_tap = rx_iq[tap_lag:]
-            ref_tap = ref_iq[: len(rx_tap)]
-        else:
-            rx_tap = rx_iq
-            ref_tap = ref_iq
-
-        channel_response = rx_tap * np.conj(ref_tap)
-        d_shift, d_spread, power, p_rate, p_jitter = extract_tap_metrics(
-            channel_response, sample_rate
-        )
-
-        raw_taps.append({
-            "delay_ms": float(tap_delay_ms),
-            "doppler_shift_hz": d_shift,
-            "doppler_spread_hz": d_spread,
-            "power": power,
-            "phase_rate_rad_s": p_rate,
-            "phase_jitter_rad": p_jitter,
-        })
-
-    max_power = max([t["power"] for t in raw_taps]) if raw_taps else 1e-6
-
-    watterson_taps = []
-    for tap in raw_taps:
-        rel_db = 10 * np.log10(max(tap["power"] / max_power, 1e-6))
-        # Ensure relative power cannot exceed 0 dB
-        rel_db = min(0.0, float(rel_db))
-
-        watterson_taps.append({
-            "delay_ms": tap["delay_ms"],
-            "doppler_shift_hz": tap["doppler_shift_hz"],
-            "doppler_spread_hz": tap["doppler_spread_hz"],
-            "relative_power_db": rel_db,
-            "phase_rate_rad_s": tap["phase_rate_rad_s"],
-            "phase_jitter_rad": tap["phase_jitter_rad"],
-        })
-
-    return {
-        "message": msg,
-        "num_paths": len(watterson_taps),
-        "watterson_taps": watterson_taps,
-    }
+    dt = msg.get("dt", 0.0) or 0.0
+    
+    est = estimate_channel(rx_iq, ref_iq, sample_rate, dt)
+    return {"message": msg, "num_paths": 1,
+            "watterson_taps": [est["tap"]], "quality": est["quality"]}
     # yay
