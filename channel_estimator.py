@@ -6,8 +6,8 @@ are built and truncated to min_len:
 
     from channel_estimator import estimate_channel
     est = estimate_channel(rx_iq, ref_iq, sample_rate, dt)
-    return {"message": msg, "num_paths": 1,
-            "watterson_taps": [est["tap"]], "quality": est["quality"]}
+    return {"message": msg, "channel": est["channel"],
+            "quality": est["quality"], "z": est["z"]}
 
 Method
 ------
@@ -211,6 +211,17 @@ def fit_doppler(z, T=SYMBOL_S, compute_ci=False):
 
 
 # --------------------------------------------------------------- top level
+def _z_record(z):
+    """Compact, reprocessable record of the symbol-rate channel series (79 complex values).
+    Normalised to unit RMS so the JSON stays small; z_rms restores the scale."""
+    rms = float(np.sqrt(np.mean(np.abs(z) ** 2))) if len(z) else 0.0
+    if rms == 0.0:
+        return {"rms": 0.0, "ri": []}
+    zn = z / rms
+    ri = np.round(np.column_stack([zn.real, zn.imag]).ravel(), 4)
+    return {"rms": rms, "ri": [float(v) for v in ri]}
+
+
 def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False):
     n = min(len(rx_iq), len(ref_iq))
     rx_iq, ref_iq = rx_iq[:n], ref_iq[:n]
@@ -220,30 +231,20 @@ def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False):
     f0 = _pilot(a * np.conj(b), fs)
     z = symbol_series(a, b, fs, f0)
     fit = fit_doppler(z, SYMBOL_S, compute_ci=compute_ci)
+    align_ms = (shift - shift0) / fs * 1e3
 
     if fit is None:
-        tap = {"delay_ms": 0.0, "doppler_shift_hz": 0.0, "doppler_spread_hz": 0.0,
-               "relative_power_db": 0.0, "phase_rate_rad_s": 0.0, "phase_jitter_rad": 0.0}
-        return {"tap": tap, "quality": {"ok": False, "llr": 0.0, "snr_sym_db": None,
-                                        "n_symbols": int(len(z)), "pilot_hz": f0,
-                                        "align_offset_ms": (shift - shift0) / fs * 1e3}}
+        return {
+            "channel": {"doppler_shift_hz": None, "doppler_spread_hz": None,
+                        "spread_lo_hz": None, "spread_hi_hz": None, "path_power": None},
+            "quality": {"ok": False, "llr": 0.0, "snr_sym_db": None, "n_symbols": int(len(z)),
+                        "pilot_hz": f0, "align_offset_ms": align_ms},
+            "z": _z_record(z),
+        }
 
-    shift_hz = f0 + fit["fd_hz"]
-    # amplitude-weighted phase residual about the fitted drift (kept for continuity)
-    ph = np.unwrap(np.angle(z))
-    k = np.arange(len(z))
-    p = np.polyfit(k, ph, 1, w=np.abs(z))
-    res = np.angle(np.exp(1j * (ph - np.polyval(p, k))))
-    w = np.abs(z) ** 2
-    jitter = float(np.sqrt(np.sum(w * res ** 2) / np.sum(w)))
-
-    tap = {
-        "delay_ms": 0.0,                  # FT8 (~50 Hz) cannot resolve delay; reference path
-        "doppler_shift_hz": float(shift_hz),
+    channel = {
+        "doppler_shift_hz": float(f0 + fit["fd_hz"]),   # raw: still contains receiver clock error
         "doppler_spread_hz": fit["sigma_hz"],
-        "relative_power_db": 0.0,
-        "phase_rate_rad_s": float(2 * np.pi * shift_hz),
-        "phase_jitter_rad": jitter,
         "spread_lo_hz": fit["spread_lo_hz"],
         "spread_hi_hz": fit["spread_hi_hz"],
         "path_power": fit["power"],
@@ -253,7 +254,7 @@ def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False):
         "llr": fit["llr"],
         "snr_sym_db": fit["snr_sym_db"],
         "n_symbols": fit["n_symbols"],
-        "pilot_hz": f0,
-        "align_offset_ms": (shift - shift0) / fs * 1e3,
+        "pilot_hz": f0,                 # removed before the fit; fitted shift = pilot + fd
+        "align_offset_ms": align_ms,
     }
-    return {"tap": tap, "quality": quality}
+    return {"channel": channel, "quality": quality, "z": _z_record(z)}

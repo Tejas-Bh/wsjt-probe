@@ -21,6 +21,11 @@ class NumpyEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NumpyEncoder, self).default(obj)
 
+from concurrent.futures import ProcessPoolExecutor
+from slot_worker import analyze_slot
+MAX_MSGS, MAX_BACKLOG = 8, 3
+
+
 def main():
     # card_desc = ["4", "0"]  # local sound card: card 4, channel 0
     #
@@ -39,6 +44,8 @@ def main():
     # card_desc = ["kiwi", "azwhtmtns.proxy.kiwisdr.com:8073:14074.0"]
     # card_desc = ["kiwi", "22477.proxy.kiwisdr.com:8073:14074.0"]
     receiver = FT8BlockReceiver(card_desc=card_desc, sample_rate=12000)
+    pool = ProcessPoolExecutor(max_workers=2)   # moved here
+    pending = []
 
     while True:
         try:
@@ -52,48 +59,13 @@ def main():
             # Retrieve decoded messages from background process
             messages = future.result()
 
-            print("Retrieved messages")
-
-            utc_str = time.strftime("%H:%M:%S UTC", time.gmtime(slot_utc))
-            file_timestamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime(slot_utc))
-
-            print(f"\n--- Slot {utc_str} ---")
-            print(f"Waveform size: {len(waveform)} samples | Type: {waveform.dtype}")
-            print(f"Messages decoded: {len(messages)}")
-
-            slot_data_log = []
-
-            for msg in messages:
-                text = msg["message"]
-                snr = msg["snr"]
-                hz_val = msg["hz"]() if callable(msg["hz"]) else msg["hz"]
-                dt = msg["dt"]
-                print(f"[{utc_str}] SNR: {snr:.2f} dB | DT: {dt}s | Freq: {hz_val} Hz | Message: {text}")
-
-                msg_entry = {}
-
-                try:
-                    radar_data = analyze(
-                        waveform, msg, sample_rate=receiver.sample_rate, iq_waveform=iq_waveform
-                    )
-                    # print(f"  └─ Delay: {radar_data['path_delay_samples']} samples | Doppler: {radar_data['true_doppler_shift_hz']:.2f} Hz | Multipaths: {radar_data['path_shifts']}")
-                    print(radar_data)
-                    msg_entry["radar_analysis"] = radar_data
-                except Exception as eval_err:
-                    # Clean up the output stream and catch the exception string cleanly
-                    err_msg = str(eval_err).strip() if str(eval_err) else "Unknown parsing error"
-                    print(f"  └─ Analysis error: {err_msg}")
-                    msg_entry["radar_analysis"] = {"error": err_msg}
-
-                slot_data_log.append(msg_entry)
-
-            # Save data using our custom encoder to fix the int64 crash
-            if slot_data_log:
-                json_filename = f"ft8_radar_{file_timestamp}.json"
-                with open(json_filename, "w", encoding="utf-8") as f:
-                    json.dump(slot_data_log, f, cls=NumpyEncoder, indent=4)
-                print(f"\n[Saved] Slot data successfully written to {json_filename}")
-
+            pending = [f for f in pending if not f.done()]
+            if len(pending) >= MAX_BACKLOG:
+                print("analysis backlog, skipping slot"); continue
+            f = pool.submit(analyze_slot, waveform, iq_waveform, messages,
+                receiver.sample_rate, slot_utc, MAX_MSGS)
+            f.add_done_callback(lambda fut: print("[analysis]", fut.exception() or fut.result()))
+            pending.append(f)
         except KeyboardInterrupt:
             raise
         except Exception as e:

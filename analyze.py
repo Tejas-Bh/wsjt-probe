@@ -137,6 +137,6 @@ def analyze(waveform, msg, sample_rate=12000, iq_waveform=None):
     dt = msg.get("dt", 0.0) or 0.0
     
     est = estimate_channel(rx_iq, ref_iq, sample_rate, dt)
-    return {"message": msg, "num_paths": 1,
-            "watterson_taps": [est["tap"]], "quality": est["quality"]}
+    return {"message": msg, "channel": est["channel"],
+            "quality": est["quality"], "z": est["z"]}
     # yay
