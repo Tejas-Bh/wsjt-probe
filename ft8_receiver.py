@@ -16,35 +16,15 @@ import concurrent.futures
 import numpy as np
 import ft8
 import weakaudio
+from wsjtx_cli import decode_ft8_jt9
 
 
 # Standalone worker function for ProcessPoolExecutor
 def decode_waveform_worker(waveform, sample_rate, sample_time, verbose=False):
     """
-    Top-level function that runs in a separate OS process to prevent
-    GIL / CPU contention with the audio capture stream.
+    Subprocess worker executing official WSJT-X jt9 CLI decodes.
     """
-    decoder = ft8.FT8()
-    decoder.verbose = verbose
-    decoder.cardrate = sample_rate
-    decoder.rcardrate = sample_rate
-
-    decoder.process(waveform, sample_time)
-
-    raw_decodes = decoder.get_msgs()
-    messages = []
-
-    for dec in raw_decodes:
-        msg_info = {
-            "message": getattr(dec, "msg", str(dec)),
-            "snr": getattr(dec, "snr", None),
-            "hz": getattr(dec, "hz", None),
-            "dt": getattr(dec, "dt", None),
-            "timestamp_utc": sample_time
-        }
-        messages.append(msg_info)
-
-    return messages
+    return decode_ft8_jt9(waveform, sample_rate, sample_time)
 
 
 class FT8BlockReceiver:

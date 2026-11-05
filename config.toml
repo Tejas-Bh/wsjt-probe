@@ -1,0 +1,31 @@
+# wsjt-probe configuration. Run:  python probe.py config.toml
+
+[receiver]
+type = "kiwi"                   # kiwi | rtlsdr
+address = "marco5g.zapto.org:8073"   # Kiwi only: host:port (the dial frequency comes from [channel])
+# rtlsdr only (see rtlsdr_source.py):
+rtl_index = 0
+rtl_mode = "direct"             # direct | tuner
+# rtl_gain = "auto"             # tuner mode only
+# rtl_lo_offset_khz = 125000.0  # tuner mode + upconverter only
+
+[channel]
+mode = "wspr"                   # ft8 | wspr
+dial_khz = 7038.6               # USB dial frequency (FT8 40 m: 7074.0, WSPR 40 m: 7038.6)
+decoder = "wsjtx"               # wsjtx (jt9 / wsprd) | weakmon (FT8 only)
+
+[wsjtx]
+# Full paths if the tools are not on PATH.
+jt9 = "jt9"
+wsprd = "wsprd"
+ft8code = "ft8code"             # channel symbols of each decoded FT8 message (no waveform synthesis)
+wsprcode = "wsprcode"           # channel symbols of each decoded WSPR message
+jt9_depth = 3
+wsprd_args = []                 # e.g. ["-d"] for a deeper (slower) WSPR search
+
+[analysis]
+workers = 2                     # analysis processes (use cpu_count - 1 at most)
+max_messages_per_slot = 8       # random subset if more are decoded (keeps distance statistics unbiased)
+max_backlog = 3                 # skip a slot if this many slots are still being analysed
+compute_ci = false              # spread confidence interval: ~0.5 s extra per message
+out_dir = "data"

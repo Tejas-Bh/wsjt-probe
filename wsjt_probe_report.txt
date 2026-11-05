@@ -1,0 +1,46 @@
+wsjt-probe aggregation report
+============================================================
+mode: wspr   time bin: 60min
+files: 19   messages: 45   analysis errors: 0 (0.0%)
+quality.ok: 40 of 45 messages (89%)
+
+Binned trends (quality.ok messages only; CI = 95% bootstrap of the bin mean)
+bin     n_ok | med_spr  mean_spr | station-demeaned (n)   | med_snr   med_dist_km
+01:00     29 | 0.067    0.088    | +0.008 [-0.005,+0.027] (21) | -17.0     1812
+02:00     11 | 0.090    0.106    | +0.004 [-0.019,+0.036] (4) | -17.0     1813
+
+Path distance per bin, one value per station per bin (needs --rx-grid)
+bin     stations |   p10_km   p50_km   p90_km | frac>1000km
+01:00         13 |     1561     1812     2947 |  92.3%
+02:00          7 |     1561     1813     4305 | 100.0%
+
+Spread per bin, one value per station (station median in the bin).
+p10 is the lower envelope: the quietest stations bound the ionospheric contribution.
+bin     stations |  p10_Hz  p50_Hz  p90_Hz
+01:00         13 |   0.053   0.069   0.139
+02:00          8 |   0.050   0.078   0.190
+
+WSPR per bin: drift removed (|Hz/min|, transmitter + path combined) and reported power
+bin     n_ok | drift_removed med|drift| | med_power_dBm
+01:00     29 | 48%          0.12       | 27
+02:00     11 | 55%          0.13       | 27
+
+Spearman spread vs time (raw): rho=0.10 p=0.52  (messages are not independent; treat p as optimistic)
+Spearman station-demeaned spread vs time: rho=-0.21 p=0.31 (n=25)
+Spearman spread vs reported SNR: rho=-0.00  (should be ~0 if the estimator is floor-free)
+
+Most-seen stations (ok messages): per-station spread should be stable if the measurement is real
+           n  slots  med_spread    iqr  med_dist
+call                                            
+EB1A       7      7       0.053  0.059  1812.707
+...        5      4       0.062  0.015  2339.820
+EK6ODA     4      4       0.063  0.007  2832.893
+EA6LA      3      3       0.062  0.012  1561.116
+R2BIY      3      3       0.049  0.015  1689.512
+EK1RR      3      3       0.067  0.014  2832.893
+EA5UV      2      2       0.049  0.011  1714.844
+4X1DA      2      2       0.111  0.039  2975.296
+TA4/G8SCU  2      2       0.156  0.016       NaN
+R2ASY      2      2       0.148  0.003  1689.512
+EA6FG      2      2       0.363  0.094  1561.116
+AC1JS      1      1       0.069  0.000  5711.694

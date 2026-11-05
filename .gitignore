@@ -7,3 +7,4 @@ ft8_receiver.py.*
 ft8-junk.txt
 *.json
 *works*
+data/

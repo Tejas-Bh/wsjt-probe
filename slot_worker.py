@@ -27,15 +27,24 @@ by the slot time), not the strongest ones -- picking the strongest would bias th
 path-distance statistics toward nearby stations.
 """
 
+# slot_worker.py
 import json
 import os
 import random
 import time
-
 import numpy as np
 
 from analyze import analyze
+from frontends.ft8_frontend import FT8Frontend
+# Future frontends:
+# from frontends.wspr_frontend import WSPRFrontend
+# from frontends.jt65_frontend import JT65Frontend
 
+FRONTENDS = {
+    "FT8": FT8Frontend,
+    # "WSPR": WSPRFrontend,
+    # "JT65": JT65Frontend,
+}
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -47,13 +56,22 @@ class NumpyEncoder(json.JSONEncoder):
             return bool(obj)
         if isinstance(obj, np.ndarray):
             return obj.tolist()
+        if callable(obj):  # Converts bound methods / functions to strings
+            return str(obj)
         return super().default(obj)
 
 
 def analyze_slot(waveform, iq_waveform, messages, sample_rate, slot_utc,
-                 max_msgs=None, out_dir="."):
+                 mode_name="FT8", max_msgs=None, out_dir="."):
     t0 = time.time()
     total = len(messages)
+    
+    if mode_name not in FRONTENDS:
+        raise ValueError(f"Unsupported mode '{mode_name}' configured in config.json")
+    
+    # Instantiate the selected frontend dynamically
+    frontend = FRONTENDS[mode_name]()
+
     if max_msgs and total > max_msgs:
         messages = random.Random(int(slot_utc)).sample(list(messages), max_msgs)
 
@@ -63,17 +81,29 @@ def analyze_slot(waveform, iq_waveform, messages, sample_rate, slot_utc,
         entry = {"slot_total_decoded": total}
         try:
             entry["radar_analysis"] = analyze(
-                waveform, msg, sample_rate=sample_rate, iq_waveform=iq_waveform)
+                waveform, 
+                msg, 
+                frontend=frontend, 
+                sample_rate=sample_rate, 
+                iq_waveform=iq_waveform
+            )
         except Exception as e:
             entry["radar_analysis"] = {"error": repr(e), "message": text}
         log.append(entry)
 
     fname = None
     if log:
+        os.makedirs(out_dir, exist_ok=True)
         stamp = time.strftime("%Y%m%d_%H%M%S", time.gmtime(slot_utc))
-        fname = os.path.join(out_dir, "ft8_radar_%s.json" % stamp)
+        fname = os.path.join(out_dir, f"{mode_name.lower()}_radar_{stamp}.json")
         with open(fname, "w", encoding="utf-8") as f:
             json.dump(log, f, cls=NumpyEncoder, indent=1)
 
-    return {"slot": time.strftime("%H:%M:%S", time.gmtime(slot_utc)), "decoded": total,
-            "analyzed": len(log), "seconds": round(time.time() - t0, 1), "file": fname}
+    return {
+        "slot": time.strftime("%H:%M:%S", time.gmtime(slot_utc)),
+        "mode": mode_name,
+        "decoded": total,
+        "analyzed": len(log),
+        "seconds": round(time.time() - t0, 1),
+        "file": fname
+    }

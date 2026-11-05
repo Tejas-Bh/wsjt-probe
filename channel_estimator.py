@@ -1,54 +1,56 @@
 """
-channel_estimator.py -- symbol-rate channel estimate + ML Doppler fit for FT8.
+channel_estimator.py -- symbol-rate channel estimate + ML Doppler fit (mode-independent).
 
-Replaces steps 3-5 and the tap loop of analyze(). Call it after rx_iq / ref_iq
-are built and truncated to min_len:
+Usage (FT8 is the default mode; pass spec=modes.WSPR for WSPR):
 
     from channel_estimator import estimate_channel
-    est = estimate_channel(rx_iq, ref_iq, sample_rate, dt)
+    est = estimate_channel(rx_iq, ref_iq, sample_rate, dt)            # FT8
+    est = estimate_channel(rx_iq, ref_iq, sample_rate, dt, spec=WSPR) # WSPR
     return {"message": msg, "channel": est["channel"],
             "quality": est["quality"], "z": est["z"]}
 
-Method
+Method (all mode constants come from modes.ModeSpec)
 ------
-1. Alignment. weakmon's dt is relative to the nominal 0.5 s start, so the first
-   guess is dt + 0.5 s; a short +/-40 ms search then fixes the residual.
-2. Pilot frequency (clock error + mean Doppler) is removed from rx*conj(ref).
-3. Matched integration over each 0.16 s symbol -> z[k], one complex channel
-   sample per symbol (6.25 Hz sampling, +/-3.125 Hz unambiguous Doppler). This
-   replaces the 5 Hz low-pass, which only attenuated the 6.25 Hz keying a little.
-4. Maximum-likelihood fit of  z ~ CN(0, Sigma),  Sigma[m] = P*R_c(m) + N*delta:
-   Gaussian Doppler spectrum (Watterson model) with mean f_d and std sigma_f,
-   plus a free white-noise term N. Because N is fitted, noise no longer adds to
-   the spread (the old moment estimator was floor-limited). The 0.16 s
-   integration window is included in the model.
+1. Alignment: first guess (decoder dt + spec.dt_offset_s), then a search over +/-align_span_s
+   (coarse on a decimated copy, then refined at full rate). Never trust the decoder dt blindly.
+2. Pilot (receiver clock + transmitter offset) is estimated and removed; for modes with
+   chirp_max_hz_per_s > 0 (WSPR) a linear frequency drift is estimated and removed too, and
+   reported as quality["drift_hz_per_min"]. Removed drift mixes transmitter and ionosphere.
+3. Matched integration over each symbol -> z[k] (one complex channel sample per symbol).
+4. Maximum-likelihood fit of z ~ CN(0, Sigma), Sigma[m] = P*R_c(m) + N*delta: Gaussian Doppler
+   spectrum (mean f_d, std sigma_f) + free white-noise term; the symbol integration window is
+   part of the model, so noise does not inflate the spread.
 
 Definitions
 -----------
-doppler_spread_hz        sigma_f, the standard deviation of the Doppler power
-                         spectrum (same quantity the old RMS-width estimator
-                         targeted). The ITU/Watterson "spread" is 2*sigma_f.
-doppler_shift_hz         pilot + fitted mean Doppler (raw: still contains
-                         receiver clock error; subtract your wwv_calibrate offset).
-spread_lo_hz/spread_hi_hz  profile-likelihood interval (compute_ci=True, ~0.5 s extra per
-                         message). Empirical coverage in simulation was 78-85%.
-                         lo == 0 means "not resolved: spread could be ~0".
-quality.llr              log-likelihood gain of 'signal present' over 'noise only'.
-quality.snr_sym_db       fitted channel power / noise power per symbol.
-quality.ok               llr > LLR_MIN and enough symbols; gate your results on it.
+doppler_spread_hz   sigma_f, std of the Doppler power spectrum (ITU "spread" = 2*sigma_f).
+doppler_shift_hz    pilot + fitted mean Doppler (raw: still contains receiver clock error).
+quality.ok          llr > spec.llr_min and enough symbols.
+quality.llr         log-likelihood gain of 'signal present' over 'noise only'.
 
-Limits (from simulation): spread is recovered to ~10% for sigma_f 0.1-1.0 Hz at
-in-band SNR of 0 to +4 dB. Near sigma_f >= 1.5 Hz the 6.25 Hz symbol sampling
-aliases the spectrum, the channel looks like noise, and quality.ok goes False.
-Delay is NOT estimated (FT8's ~50 Hz bandwidth cannot resolve it).
+Validation against WSJT-X's ft8sim (one realisation per fdop, SNR -10): alignment within +/-5 ms
+(so FT8 dt + 0.5 s is confirmed against jt9's own convention) and sigma_f ~= fdop / 4 (fdop 0.3
+-> 0.078 Hz, 0.6 -> 0.152 Hz; the 0.05 and 0.1 files sit at the estimator floor, as they should).
+So ft8sim's nominal "spread" is about 4*sigma_f, NOT the 2*sigma_f of the ITU convention.
+Run validate_ft8sim.py for statistics over many files.
+
+Limits: spreads above ~Nyquist/2 (FT8 ~1.5 Hz, WSPR ~0.4 Hz) alias and read as noise.
+Delay is not estimated (FT8 ~50 Hz and WSPR ~6 Hz bandwidth cannot resolve HF multipath delay).
 """
 
 import numpy as np
+import scipy.signal as sps
 from scipy.linalg import toeplitz, solve_triangular
 from scipy.optimize import minimize
 
-SYMBOL_S = 0.16
-LLR_MIN = 12.0          # noise-only runs (60 trials, full pipeline) gave LLR <= 9.5, p99 = 8.7
+from modes import FT8, ModeSpec  # noqa: F401  (ModeSpec re-exported for convenience)
+
+# FT8 defaults kept as module-level names for older scripts (multipath_fit.py imports them)
+SYMBOL_S = FT8.symbol_s
+LLR_MIN = FT8.llr_min
+SIG_MIN, SIG_MAX, FD_MAX = FT8.sig_min_hz, FT8.sig_max_hz, FT8.fd_max_hz
+CHIRP_LLR_GAIN = 3.0   # extra log-likelihood required to accept the drift-removed fit (1 extra parameter)
+CI_DELTA = 1.5   # empirically calibrated: delta-NLL 0.5 gave only ~52% coverage in simulation
 
 # 8-point Gauss-Legendre on [-1,0] and [0,1] for the triangular symbol window
 _gx, _gw = np.polynomial.legendre.leggauss(8)
@@ -80,6 +82,7 @@ def _block_metric(a, b, blk):
 
 
 def refine_alignment(rx, ref, fs, shift0, span_s=0.04, coarse_s=0.002, blk_s=0.02):
+    """Slow reference implementation (full-rate search)."""
     blk = int(round(blk_s * fs))
     coarse = max(1, int(round(coarse_s * fs)))
     span = int(round(span_s * fs))
@@ -91,6 +94,35 @@ def refine_alignment(rx, ref, fs, shift0, span_s=0.04, coarse_s=0.002, blk_s=0.0
     return int(fine[int(np.argmax(mf))])
 
 
+def refine_alignment_fast(rx, ref, fs, shift0, spec=FT8):
+    """Coarse search on a decimated copy, then short full-rate refinements.
+    Returns (shift, rx_decimated, ref_decimated)."""
+    D = spec.decim
+    rxd = sps.resample_poly(rx, 1, D)
+    refd = sps.resample_poly(ref, 1, D)
+    fsd = fs / D
+    blk_d = max(2, int(round(spec.align_block_s * fsd)))
+    c0 = int(round(shift0 / D))
+    span_d = int(round(spec.align_span_s * fsd))
+    cand = np.arange(c0 - span_d, c0 + span_d + 1)
+    m = [_block_metric(*_pair(rxd, refd, int(c)), blk_d) for c in cand]
+    s1 = int(cand[int(np.argmax(m))]) * D
+
+    blk = int(round(spec.align_block_s * fs))
+    step = max(1, D // 5)
+    stages = [(step, D)]
+    s = step
+    while s > 1:
+        ns = max(1, s // 4)
+        stages.append((ns, 3 if s <= 4 else s))
+        s = ns
+    for step, half in stages:
+        cand = np.arange(s1 - half, s1 + half + 1, step)
+        mf = [_block_metric(*_pair(rx, ref, int(c)), blk) for c in cand]
+        s1 = int(cand[int(np.argmax(mf))])
+    return s1, rxd, refd
+
+
 def _pilot(prod, fs, fmax=50.0):
     n = len(prod)
     nfft = 1 << (int(np.ceil(np.log2(n))) + 1)
@@ -100,17 +132,37 @@ def _pilot(prod, fs, fmax=50.0):
     return float(f[msk][int(np.argmax(np.abs(X[msk]) ** 2))])
 
 
+def _dechirp(prod, fs, fdot_max, fmax):
+    """Search (f0, fdot) maximising the dechirped spectral peak. phase = 2*pi*f0*t + pi*fdot*t^2."""
+    n = len(prod)
+    t = np.arange(n) / fs
+    tobs = n / fs
+    step = 3.0 / tobs ** 2
+    nfft = 1 << (int(np.ceil(np.log2(n))) + 3)
+    fr = np.fft.fftfreq(nfft, 1.0 / fs)
+    msk = np.abs(fr) <= fmax
+    w = np.hanning(n)
+    best = (-1.0, 0.0, 0.0)
+    for fd in np.arange(-fdot_max, fdot_max + step, step):
+        X = np.abs(np.fft.fft(prod * np.exp(-1j * np.pi * fd * t ** 2) * w, nfft))
+        Xm = np.where(msk, X, 0.0)
+        k = int(np.argmax(Xm))
+        if Xm[k] > best[0]:
+            best = (Xm[k], float(fr[k]), float(fd))
+    return best[1], best[2]
+
+
 # ----------------------------------------------------------- symbol series
-def symbol_series(a, b, fs, f0):
-    """z[k] = sum(rx*conj(ref)) / sum(|ref|^2) over each symbol; f0 removed."""
+def symbol_series(a, b, fs, f0, fdot=0.0, spec=FT8):
+    """z[k] = sum(rx*conj(ref)) / sum(|ref|^2) over each symbol; pilot (and drift) removed."""
     t = np.arange(len(a)) / fs
-    prod = a * np.conj(b) * np.exp(-2j * np.pi * f0 * t)
+    prod = a * np.conj(b) * np.exp(-1j * (2 * np.pi * f0 * t + np.pi * fdot * t ** 2))
     en = np.abs(b) ** 2
     thr = 0.1 * np.max(np.abs(b))
     on = np.nonzero(np.abs(b) > thr)[0]
     n0 = int(on[0]) if len(on) else 0
-    L = int(round(SYMBOL_S * fs))
-    K = min(79, (len(prod) - n0) // L)
+    L = int(round(spec.symbol_s * fs))
+    K = min(spec.n_symbols, (len(prod) - n0) // L)
     if K <= 0:
         return np.zeros(0, dtype=complex)
     idx = n0 + np.arange(K * L)
@@ -145,24 +197,24 @@ def _nll(z, T, sigma, fd, P, N):
     return float(2 * np.sum(np.log(np.diag(L).real)) + np.sum(np.abs(y) ** 2))
 
 
-SIG_MIN, SIG_MAX, FD_MAX = 0.02, 6.0, 3.1
-CI_DELTA = 1.5   # empirically calibrated: delta-NLL 0.5 gave only ~52% coverage in simulation
-
-
-def fit_doppler(z, T=SYMBOL_S, compute_ci=False):
+def fit_doppler(z, T=SYMBOL_S, compute_ci=False, fd_max=FD_MAX, sig_min=SIG_MIN, sig_max=SIG_MAX,
+                min_symbols=20):
     K = len(z)
-    if K < 20:
+    if K < min_symbols:
         return None
     s = np.sqrt(np.mean(np.abs(z) ** 2))
     if s == 0:
         return None
     zn = z / s
     r1 = np.mean(zn[1:] * np.conj(zn[:-1]))
-    fd0 = float(np.clip(np.angle(r1) / (2 * np.pi * T), -FD_MAX, FD_MAX))
-    bounds = [(-12, 6), (-12, 6), (np.log(SIG_MIN), np.log(SIG_MAX)), (-FD_MAX, FD_MAX)]
+    fd0 = float(np.clip(np.angle(r1) / (2 * np.pi * T), -fd_max, fd_max))
+    bounds = [(-12, 6), (-12, 6), (np.log(sig_min), np.log(sig_max)), (-fd_max, fd_max)]
 
     best = None
-    for sig0, p0 in ((0.1, 0.6), (0.4, 0.6), (1.5, 0.4)):
+    mid = float(np.sqrt(sig_min * sig_max))
+    for sig0, p0 in ((max(sig_min * 5, 0.1 * mid), 0.6), (mid * 0.5, 0.6), (mid * 2.0, 0.4)) \
+            if (sig_min, sig_max) != (SIG_MIN, SIG_MAX) else ((0.1, 0.6), (0.4, 0.6), (1.5, 0.4)):
+        sig0 = float(np.clip(sig0, sig_min * 1.01, sig_max * 0.99))
         x0 = [np.log(p0), np.log(1 - p0 + 1e-3), np.log(sig0), fd0]
         res = minimize(_nll_x, x0, args=(zn, T), method="L-BFGS-B", bounds=bounds)
         if best is None or res.fun < best.fun:
@@ -182,7 +234,7 @@ def fit_doppler(z, T=SYMBOL_S, compute_ci=False):
     }
     if compute_ci:
         sig_hat = out["sigma_hz"]
-        grid = np.unique(np.concatenate([np.geomspace(SIG_MIN, SIG_MAX, 20), [sig_hat]]))
+        grid = np.unique(np.concatenate([np.geomspace(sig_min, sig_max, 20), [sig_hat]]))
         prof = []
         for sg in grid:
             f = lambda y, sg=sg: _nll(zn, T, sg, y[2], np.exp(y[0]), np.exp(y[1]))
@@ -206,14 +258,14 @@ def fit_doppler(z, T=SYMBOL_S, compute_ci=False):
         lo = crossing(range(i0 - 1, -1, -1))
         hi = crossing(range(i0 + 1, len(grid)))
         out["spread_lo_hz"] = lo if lo is not None else 0.0     # 0 = not resolved
-        out["spread_hi_hz"] = hi if hi is not None else float(SIG_MAX)
+        out["spread_hi_hz"] = hi if hi is not None else float(sig_max)
     return out
 
 
 # --------------------------------------------------------------- top level
 def _z_record(z):
-    """Compact, reprocessable record of the symbol-rate channel series (79 complex values).
-    Normalised to unit RMS so the JSON stays small; z_rms restores the scale."""
+    """Compact, reprocessable record of the symbol-rate channel series.
+    Normalised to unit RMS so the JSON stays small; rms restores the scale."""
     rms = float(np.sqrt(np.mean(np.abs(z) ** 2))) if len(z) else 0.0
     if rms == 0.0:
         return {"rms": 0.0, "ri": []}
@@ -222,23 +274,52 @@ def _z_record(z):
     return {"rms": rms, "ri": [float(v) for v in ri]}
 
 
-def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False):
+def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False, fast=True, spec=FT8):
     n = min(len(rx_iq), len(ref_iq))
     rx_iq, ref_iq = rx_iq[:n], ref_iq[:n]
-    shift0 = int(round((dt + 0.5) * fs)) if dt is not None else int(0.5 * fs)
-    shift = refine_alignment(rx_iq, ref_iq, fs, shift0)
+    off = spec.dt_offset_s
+    shift0 = int(round(((dt or 0.0) + off) * fs)) if dt is not None else int(round(off * fs))
+
+    fdot = 0.0
+    f0_chirp = None
+    if fast:
+        shift, rxd, refd = refine_alignment_fast(rx_iq, ref_iq, fs, shift0, spec)
+        ad, bd = _pair(rxd, refd, int(round(shift / spec.decim)))
+        f0 = _pilot(ad * np.conj(bd), fs / spec.decim, spec.pilot_max_hz)
+        if spec.chirp_max_hz_per_s > 0:
+            f0_chirp, fdot_chirp = _dechirp(ad * np.conj(bd), fs / spec.decim,
+                                            spec.chirp_max_hz_per_s, spec.pilot_max_hz)
+    else:
+        shift = refine_alignment(rx_iq, ref_iq, fs, shift0, spec.align_span_s,
+                                 blk_s=spec.align_block_s)
+        a_, b_ = _pair(rx_iq, ref_iq, shift)
+        f0 = _pilot(a_ * np.conj(b_), fs, spec.pilot_max_hz)
     a, b = _pair(rx_iq, ref_iq, shift)
-    f0 = _pilot(a * np.conj(b), fs)
-    z = symbol_series(a, b, fs, f0)
-    fit = fit_doppler(z, SYMBOL_S, compute_ci=compute_ci)
+
+    def _fit(z_):
+        return fit_doppler(z_, spec.symbol_s, compute_ci=compute_ci, fd_max=spec.fd_max_hz,
+                           sig_min=spec.sig_min_hz, sig_max=spec.sig_max_hz)
+
+    z = symbol_series(a, b, fs, f0, 0.0, spec)
+    fit = _fit(z)
+    drift_used = False
+    if f0_chirp is not None:
+        # keep the drift removal only if it clearly improves the likelihood: a real transmitter
+        # drift breaks the no-drift fit, whereas on a drift-free signal the dechirp would just
+        # absorb part of the genuine Doppler fluctuation and bias the spread low.
+        z1 = symbol_series(a, b, fs, f0_chirp, fdot_chirp, spec)
+        fit1 = _fit(z1)
+        if fit1 is not None and (fit is None or fit1["llr"] > fit["llr"] + CHIRP_LLR_GAIN):
+            z, fit, f0, fdot, drift_used = z1, fit1, f0_chirp, fdot_chirp, True
     align_ms = (shift - shift0) / fs * 1e3
 
+    base_q = {"mode": spec.name, "pilot_hz": f0, "drift_hz_per_min": fdot * 60.0, "drift_removed": drift_used,
+              "align_offset_ms": align_ms}
     if fit is None:
         return {
             "channel": {"doppler_shift_hz": None, "doppler_spread_hz": None,
                         "spread_lo_hz": None, "spread_hi_hz": None, "path_power": None},
-            "quality": {"ok": False, "llr": 0.0, "snr_sym_db": None, "n_symbols": int(len(z)),
-                        "pilot_hz": f0, "align_offset_ms": align_ms},
+            "quality": dict(base_q, ok=False, llr=0.0, snr_sym_db=None, n_symbols=int(len(z))),
             "z": _z_record(z),
         }
 
@@ -249,12 +330,7 @@ def estimate_channel(rx_iq, ref_iq, fs, dt, compute_ci=False):
         "spread_hi_hz": fit["spread_hi_hz"],
         "path_power": fit["power"],
     }
-    quality = {
-        "ok": bool(fit["llr"] > LLR_MIN and fit["n_symbols"] >= 60),
-        "llr": fit["llr"],
-        "snr_sym_db": fit["snr_sym_db"],
-        "n_symbols": fit["n_symbols"],
-        "pilot_hz": f0,                 # removed before the fit; fitted shift = pilot + fd
-        "align_offset_ms": align_ms,
-    }
+    quality = dict(base_q,
+                   ok=bool(fit["llr"] > spec.llr_min and fit["n_symbols"] >= spec.min_symbols),
+                   llr=fit["llr"], snr_sym_db=fit["snr_sym_db"], n_symbols=fit["n_symbols"])
     return {"channel": channel, "quality": quality, "z": _z_record(z)}
